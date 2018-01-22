@@ -25,8 +25,8 @@ for example, in command window under folder bin/
 
 ### M-A-N Labeling of Triad
 A M-A-N label consists
-of three digits and an optional character. The rst digit represents the number of
+of three digits and an optional character. The first digit represents the number of
 mutual connections between two nodes. The second digit is the number of
 asymmetric connections. The last digit denotes the number of null dyads. The
 optional character represents the directions of edges: "D" for down; "U" for up;
-"T" for transition and "C" for cyclic.
+"T" for transition and "C" for cyclic. See MANLabeling Image for details
