@@ -18,5 +18,6 @@ javac -d ./ -sourcepath ../ ../StaticGraphExperiment.java
 
 for example, in command window under folder bin/
 
-java TemporalGraphExperiment ../configs/dataSources/dynamicGraphList.cfg ../configs/commands/triadDynamicGraph.cfg
-java TemporalGraphExperiment ../configs/dataSources/dynamicGraphList.cfg ../configs/commands/triadDynamicGraph.cfg
+- java TemporalGraphExperiment ../configs/dataSources/dynamicGraphList.cfg ../configs/commands/triadDynamicGraph.cfg
+
+- java TemporalGraphExperiment ../configs/dataSources/dynamicGraphList.cfg ../configs/commands/triadDynamicGraph.cfg
