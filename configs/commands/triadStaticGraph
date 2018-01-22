@@ -1,0 +1,30 @@
+//This experiment setup file is for static network
+//***********************************************
+//(A)	The First lines are expName xxx	yyy, xxx is experiment name and yyy shows create static 
+expName triadRndGraphSocailNetwork2
+//(b) 	The second line outDir xxx
+outDir	/nfs/pantanal/scratch1/kuntu/workspace/netMotif/transitions/experimentResult
+//
+//(C) 	the next lines are commands to process motif census computation in static networks
+//----------------------------------
+//0. get graph information
+//static getRandomGraphInfo
+//----------------------------------
+//1. compute motif frequence from a random graph given in/out degree sequences
+//	static ExpectedTriadFreqOptTime	motifsize	modelID	time_to_repeat
+//	motifsize is the size of the motif, 3 means triad and 4 means 4-node motif
+//	modelID is the ID of the probability model to compute motif frequences. range from 0-3
+//	time_t_repeat is the number of time to repeat the computation, so as to obtain a statistic of the runtime.
+//Example:
+static	ExpectedTriadFreqOptTime	3	0	1
+//static	ExpectedTriadFreqOptTime	3	1	1
+//static	ExpectedTriadFreqOptTime	3	2	1
+static	ExpectedTriadFreqOptTime	3	3	1
+//
+//----------------------------------
+//2. "SampleGraphMotifFreq	a	b"
+//		A command to compute triad frequency in random graph by simulation: generate b random graphs and count the frequency for each motif type and return b arrays of motif frequencies. 
+//		a=[3, 4] means a-node subgraph motif, 
+//		b=[1,...) repeat this experiment for b times
+//Example:
+static	SampleGraphMotifFreq	3	400
