@@ -29,4 +29,4 @@ of three digits and an optional character. The first digit represents the number
 mutual connections between two nodes. The second digit is the number of
 asymmetric connections. The last digit denotes the number of null dyads. The
 optional character represents the directions of edges: "D" for down; "U" for up;
-"T" for transition and "C" for cyclic. See MANLabeling Image for details
+"T" for transition and "C" for cyclic. See triadLabeling.png Image for details
