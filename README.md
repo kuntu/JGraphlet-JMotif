@@ -17,11 +17,11 @@ javac -d ./ -sourcepath ../ ../StaticGraphExperiment.java
 - make sure the paths are correct.
 ### obtain motif census using configuration files
 
-for example, in command window under folder bin/
+Example: in command window under folder bin/
 
 - java TemporalGraphExperiment ../configs/dataSources/dynamicGraphList.cfg ../configs/commands/triadDynamicGraph.cfg
 
-- java TemporalGraphExperiment ../configs/dataSources/triadStaticGraph.cfg ../configs/commands/triadStaticGraph.cfg
+- java TemporalGraphExperiment ../configs/dataSources/staticGraphList.cfg ../configs/commands/triadStaticGraph.cfg
 
 ### M-A-N Labeling of Triad
 A M-A-N label consists
