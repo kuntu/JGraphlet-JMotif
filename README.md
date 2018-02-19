@@ -22,7 +22,7 @@ Example: in command window under folder bin/
 
 - java TemporalGraphExperiment ../configs/dataSources/dynamicGraphList.cfg ../configs/commands/triadDynamicGraph.cfg
 
-- java TemporalGraphExperiment ../configs/dataSources/staticGraphList.cfg ../configs/commands/triadStaticGraph.cfg
+- java StaticGraphExperiment ../configs/dataSources/staticGraphList.cfg ../configs/commands/triadStaticGraph.cfg
 
 ### M-A-N Labeling of Triad
 A M-A-N label consists
