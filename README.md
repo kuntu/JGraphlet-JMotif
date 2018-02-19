@@ -1,7 +1,8 @@
 # JMotif
 ## Introduction
-1. Provide a fast algorithm to compute motif census in large scale network
-2. Provide a analytical model to compute average motif frequencies in random graphs give an in/out-degree-pair sequence. 
+A Java program that
+1. Provides a fast algorithm to compute motif census in large scale network
+2. Provides a analytical model to compute average motif frequencies in random graphs give an in/out-degree-pair sequence. 
 - The 16 triad are named using M-A-N labeling (refer to the end of this readme file and triadLabeling.png), the census is in the order of [003 012 102 021D 021U 021C 111D 111U 030T 030C 201 120D 120U 120 C 210 300]
 ## Running example
 ### Compile files of motif census for static network and temporal networks
