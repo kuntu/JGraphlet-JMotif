@@ -1,4 +1,4 @@
-n# JMotif
+# JMotif
 ## Introduction
 A Java program that
 1. Provides a fast algorithm to compute motif census in large scale network
