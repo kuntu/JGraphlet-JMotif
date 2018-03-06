@@ -141,7 +141,7 @@ public class GraphIO {
 		}
 	}
 	
-	public static void outputIntegerMatrix(String fileName, int[][] m){
+	public static void outputMatrix(String fileName, int[][] m){
 		try{
 			BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
 			StringBuilder sb = new StringBuilder();
@@ -162,7 +162,7 @@ public class GraphIO {
 		int[][] m = getMatrixFromFile(fileName);
 		int[][] edges = convertAdjacentMatrixToEdgeList(m);
 		fileName = fileName.substring(0, fileName.lastIndexOf("_adj")) + "EdgeList.txt";
-		outputIntegerMatrix(fileName, edges);
+		outputMatrix(fileName, edges);
 	}
 	
 	public static void convertStrIDToIntInFile(String fileName, boolean isEgo){

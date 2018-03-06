@@ -42,7 +42,7 @@ public class DataPreprocessing {
 				System.out.println("\n\t[Operation]:conver matrix to edge list");
 				int[][] m = GraphIO.convertAdjacentMatrixToEdgeList(GraphIO.getMatrixFromFile(inFile));
 				outFile = outDir + "/"  + inFile.substring(inFile.lastIndexOf('/')+1, inFile.lastIndexOf("_adj")) + "EdgeList.txt";
-				GraphIO.outputIntegerMatrix(outFile, m);
+				GraphIO.outputMatrix(outFile, m);
 			}else if(command[1].equalsIgnoreCase("ID2Integer")){
 				boolean isEgo = false;
 				if(command.length > 2 && command[2].equalsIgnoreCase("ego")) isEgo = true;

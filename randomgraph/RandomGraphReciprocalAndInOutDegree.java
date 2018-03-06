@@ -12,6 +12,10 @@ public class RandomGraphReciprocalAndInOutDegree implements RandomGraphModel,
 	public int numReciprocal;
 	public int numAsymmetricEdge;
 	
+	/**
+	 * 
+	 * @param ts tripplet sequence of reciprocal edge, incoming edge and outgoing edge
+	 */
 	public RandomGraphReciprocalAndInOutDegree(int[][] ts){
 		numNode = ts[0].length;
 		trippletSeq = new int[3][numNode];
@@ -63,6 +67,18 @@ public class RandomGraphReciprocalAndInOutDegree implements RandomGraphModel,
 		//
 		int[][] edges = RandomGraphToolBox.generateDirectedEdgesWithReciprocalAndInOutDegreeTripplet(trippletSeq, numNode, numReciprocal, numAsymmetricEdge, RESAMPLE_REPEAT);	
 		return new GraphOfEdgeArray(edges, true, numNode);
+	}
+	@Override
+	public double[][] getGraphInfo() {
+		double[][] res = new double[6][];
+		res[0] = new double[]{numNode};
+		res[1] = new double[]{numReciprocal};
+		res[2] = new double[]{numAsymmetricEdge};
+		for(int i = 3; i < 6; i++){
+			res[i] = new double[trippletSeq[i-3].length];
+			for(int j =0; j< res[i].length; j++) res[i][j] = trippletSeq[i-3][j];
+		}
+		return res;
 	}
 
 }

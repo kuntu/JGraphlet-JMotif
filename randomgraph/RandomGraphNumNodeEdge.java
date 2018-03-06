@@ -75,5 +75,10 @@ public class RandomGraphNumNodeEdge implements RandomGraphModel,
 		}
 		return new GraphOfEdgeArray(edges, true, numNode);
 	}
+	@Override
+	public double[][] getGraphInfo() {
+		double[][] res = new double[][]{{numNode}, {numEdge}};
+		return res;
+	}
 
 }
