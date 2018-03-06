@@ -230,6 +230,17 @@ public class GraphFactory {
 		return g;
 	}
 	
+	/**
+	 * 
+	 * @param graph
+	 * @return
+	 */
+	public static RandomGraphReciprocalAndInOutDegree getRandomGraphReciprocalAndInOutDegreeFromGraphOfEdgeArray(GraphOfEdgeArray graph){
+		int[][] tripplet = GraphPropertiesToolBox.getReciprocalAndInOutDegreeSequence(graph.edges);
+		RandomGraphReciprocalAndInOutDegree g = new RandomGraphReciprocalAndInOutDegree(tripplet);
+		return g;
+	}
+	
 	public static int[][] removeLoopAndMultiEdges(int[][] edges){
 		HashSet<Long> hs = new HashSet<Long>();
 		long edgeHash = 0;
@@ -249,5 +260,14 @@ public class GraphFactory {
 			idx++;
 		}
 		return edges;
+	}
+	
+	public static RandomGraphNumNodeEdge getRandomGraphWNumNodeEdge(GraphOfEdgeArray graph){
+		return new RandomGraphNumNodeEdge(graph.size, graph.edges.length);
+	}
+	
+	public static RandomGraphNumMANPair getRandomGraphW_MAN_Pair(GraphOfEdgeArray graph){
+		int[] numNodeMutAsy = GraphPropertiesToolBox.getNumReciprocalAsymmetricNullPair(graph.edges);
+		return new RandomGraphNumMANPair(numNodeMutAsy[0], numNodeMutAsy[1], numNodeMutAsy[2]);
 	}
 }

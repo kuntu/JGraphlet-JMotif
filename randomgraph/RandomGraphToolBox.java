@@ -78,7 +78,7 @@ public class RandomGraphToolBox {
 				deg--;
 			}
 		}
-		MathFun.durstenfeldShuffleMatrixColumn(res, 0, numEdge);
+		//MathFun.durstenfeldShuffleMatrixColumn(res, 0, numEdge);
 		MathFun.durstenfeldShuffleMatrixColumn(res, 1, numEdge);
 		if(!allowLoopMultiEdge) repairRandomEdgeGraph(res);
 		return res;
@@ -117,6 +117,146 @@ public class RandomGraphToolBox {
 		return res;
 	}
 	
+	/**
+	 * generate undirected edges given degree sequence using configuration model, allows self loop and multi-edges between nodes
+	 * @param deg
+	 * @param numNode
+	 * @param numEdge
+	 * @return
+	 */
+	public static int[][] generateUndirectedEdgesWithConfigurationModel(int[] deg, int numNode, int numEdge){
+		int[][] res = new int[numEdge][2];
+		int idx = 0;
+		for(int i = 0; i< deg.length; i++){
+			for(int j =0 ; j< deg[i]; j++){
+				res[idx/2][idx%2] = i;
+				++idx;
+			}
+		}
+		MathFun.durstenfeldShuffleMatrixColumn(res, 1, res.length);
+		return res;
+	}
+	
+	public static int[][] generateDirectedEdgesWithReciprocalAndInOutDegreeTripplet(int[][] tripplet, int numNode, int numReciprocalEdge, int numAsymmetricEdge, int reSample){
+		int[][] undirectEdges = generateUndirectedEdgesWithConfigurationModel(tripplet[0], numNode, numReciprocalEdge);
+		if(reSample > 0) repairRandomEdgeGraph(undirectEdges, false, 0, reSample);
+		int[][] res = new int[numReciprocalEdge * 2 + numAsymmetricEdge][2];
+		int begIdx = undirectEdges.length * 2;
+		for(int i=0;i<undirectEdges.length; i++){
+			res[i*2] = undirectEdges[i];
+			res[i*2+1] = new int[]{undirectEdges[i][1], undirectEdges[i][0]};
+		}
+		int[][] asymmetricEdges = generateEdgesFromInOutDegreeSeq(tripplet[1], tripplet[2], numAsymmetricEdge, true);
+		for(int i = begIdx; i < res.length; i++){
+			res[i] = asymmetricEdges[i-begIdx];
+		}
+		if(reSample > 0) repairRandomEdgeGraph(res, true, begIdx, reSample);
+		return res;
+	}
+	
+	
+	public static void repairRandomEdgeGraph(int[][] edges, boolean dir, int begIdx, int reSampleRepeat){
+		HashSet<Long> set = new HashSet<Long>();
+		HashMap<Long, Integer> duplicateKeys = new HashMap<Long, Integer>();
+		long key = 0, tmp=0;
+		LinkedList<Integer> toRepair = new LinkedList<Integer>();
+		for(int i = 0; i< edges.length; i++){
+			if(edges[i][0] == edges[i][1]){
+				toRepair.add(i);
+			}else{
+				key = edgeHashCode(edges[i][0], edges[i][1], dir);
+				if(set.contains(key)){
+					toRepair.add(i);
+					if(duplicateKeys.containsKey(key)) duplicateKeys.put(key, duplicateKeys.get(key)+1);
+					else duplicateKeys.put(key, 1);
+				}else set.add(key);
+			}
+		}
+		if(toRepair.isEmpty()) return;
+		Random rnd = new Random();
+		int size = edges.length - begIdx, candidateIdx = 0, cnt = 0;
+		for(int i: toRepair){
+			cnt = -1;
+			do{
+				key = edgeHashCode(edges[i][0], edges[i][1], dir);
+				if(edges[i][0] != edges[i][1] && !duplicateKeys.containsKey(key)){
+					cnt = reSampleRepeat + 1;
+					break;
+				}
+				candidateIdx = begIdx + rnd.nextInt(size);
+				if(edges[candidateIdx][0] != edges[i][0] && edges[candidateIdx][1] != edges[i][1] && edges[candidateIdx][1] != edges[i][0] && edges[candidateIdx][0] != edges[i][1]){
+					key = edgeHashCode(edges[candidateIdx][0], edges[i][1], dir);
+					if(set.contains(key)) {
+						cnt++;
+						continue;
+					}else{
+						tmp = key;	// store previous key
+						key = edgeHashCode(edges[i][0], edges[candidateIdx][1], dir);
+						if(!set.contains(key)) break;
+					}
+				}
+				cnt++;
+			}while( cnt <reSampleRepeat);
+			if(cnt >= reSampleRepeat){
+				if(cnt == reSampleRepeat)
+					System.out.printf("hard to repair loop and multi-edge with resample for %d times\n", cnt);
+				
+				continue;
+			}
+			set.add(key);
+			set.add(tmp);
+			//reduce multi-edge. selfloop by 1.
+			key = edgeHashCode(edges[i][0], edges[i][1], dir);
+			if(duplicateKeys.containsKey(key)){
+				if(duplicateKeys.get(key) == 1) duplicateKeys.remove(key);
+				else duplicateKeys.put(key, duplicateKeys.get(key) - 1);
+			}else set.remove(key);
+			key = edgeHashCode(edges[candidateIdx][0], edges[candidateIdx][1], dir);
+			if(duplicateKeys.containsKey(key)){
+				cnt = duplicateKeys.get(key);
+				if(cnt == 1) duplicateKeys.remove(key);
+				else duplicateKeys.put(key, cnt-1);
+			}else set.remove(key);
+			//rewire two edges
+			cnt = edges[i][1];
+			edges[i][1] = edges[candidateIdx][1];
+			edges[candidateIdx][1] = cnt;
+		}
+	}
+	private static long edgeHashCode(int s, int t, boolean dir){
+		long res = 0;
+		if(!dir && s > t){
+			int tmp = s;
+			s = t;
+			t = tmp;
+		}
+		res = s;
+		return (res<<32) + t;
+	}
+	private static LinkedList<Integer> getIdxOfInValidEdges(int[][] edges, boolean dir, int begIdx){
+		HashSet<Long> set = new HashSet<Long>();
+		long key = 0, key2 = 0, tmp;
+		LinkedList<Integer> toRepair = new LinkedList<Integer>();
+		for(int i = begIdx; i< edges.length; i++){
+			if(edges[i][0] == edges[i][1]){
+				toRepair.add(i);
+			}else{
+				key = edges[i][0];
+				key2 = edges[i][1];
+				if(!dir && key > key2){
+					tmp = key;
+					key = key2;
+					key = tmp;
+				}
+				key = (key<<32) + key2;
+				if(set.contains(key)){
+					toRepair.add(i);
+				}else set.add(key);
+			}
+		}
+		return toRepair;
+	}
+	
 	/** 
 	 * reSample if there are duplicated edges or loops
 	 * @param edges
@@ -147,7 +287,7 @@ public class RandomGraphToolBox {
 			cnt = 0;
 			while(edges[sIdx][0] == edges[idx][1] || edges[sIdx][0] == edges[idx][0] || graph.get(edges[sIdx][0]).contains(edges[idx][1]) || edges[idx][0] == edges[sIdx][1] || edges[idx][1] == edges[sIdx][1] || graph.get(edges[idx][0]).contains(edges[sIdx][1])){
 				sIdx = rnd.nextInt(edges.length);
-				if(++cnt ==  100){
+				if(++cnt ==  1000){
 					System.out.println("difficult to repair edge: num of fail"+ cnt);
 					return ;
 				}
@@ -368,6 +508,37 @@ public class RandomGraphToolBox {
 				+ "\n\t num of unique in degree: %f"
 				+ "\n\t num of unique out degree: %f"
 				+ "\n\t expected num of self loop :%f\n", res[0], res[1], res[2], res[3], res[4], res[5], res[6], res[7], res[8], res[9], res[10], res[11]);
+		return res;
+	}
+	public static int[][] sampleK_NodePairs(int siz, int k){
+		long N = siz;
+		N = N*(N-1)/2;
+		if(N > ((long) Integer.MAX_VALUE)){
+			System.out.println("num of Possible edges is larger than Max Integer. user method that supporst large scale graphs");
+			return new int[0][0];
+		}
+		if(k > siz* (siz-1)/2) k = siz * (siz-1)/2;
+		int[] sampled = MathFun.sampleKIntfromN_withNoReplacement(siz * (siz-1)/2, k);
+		int[][] res = new int[k][2];
+		ArrayList<Integer> al = new ArrayList<Integer>();
+		int tmp =0;
+		al.add(tmp);
+		while(siz>1){
+			--siz;
+			tmp += siz;
+			al.add(tmp);
+		}
+		for(int i =0; i< k; i++){
+			tmp = Collections.binarySearch(al, sampled[i]);
+			if(tmp > -1){
+				res[i][0] = tmp + 1;
+			}else {
+				tmp = -tmp-1;	//garantee to be >=1, 
+				res[i][0] = tmp;
+				--tmp;
+			}
+			res[i][1] = sampled[i] - al.get(tmp) + res[i][0] + 1;
+		}
 		return res;
 	}
 }

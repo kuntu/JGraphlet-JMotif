@@ -106,6 +106,7 @@ public class RandomGraphJointInOutDegree implements RandomGraphModel, RandomGrap
 			res = new double[numOfGraphs][];
 			for(int t = 0; t<numOfGraphs; t++){
 				edges = RandomGraphToolBox.generateEdgesFromInOutDegreeSeq(jointIODegreeSequence[0], jointIODegreeSequence[1], numEdge, false);
+				edges = GraphFactory.removeLoopAndMultiEdges(edges);
 				GraphOfEdgeArray gea = new GraphOfEdgeArray(edges, true, numNode);
 				freq = gea.getMotifFreq(motifSize);
 				res[t] = new double[16];

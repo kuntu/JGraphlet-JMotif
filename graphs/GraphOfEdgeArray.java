@@ -7,10 +7,10 @@ import motifs.Motif;
 public class GraphOfEdgeArray extends BasicGraph implements GraphProperty, Motif{
 	public String[] nodeNames;
 	public int[][] edges;
-	public GraphOfEdgeArray(int[][] e, boolean direct, int s){
+	public GraphOfEdgeArray(int[][] e, boolean direct, int numNode){
 		edges = e;
 		this.directed = direct;
-		size =s;
+		size =numNode;
 	}
 	@Override
 	public int[][] getDegreeSeq() {

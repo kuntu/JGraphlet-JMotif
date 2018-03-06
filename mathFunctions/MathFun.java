@@ -1,7 +1,5 @@
 package mathFunctions;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Random;
+import java.util.*;
 
 
 public class MathFun {
@@ -109,25 +107,51 @@ public class MathFun {
 	}
 	
 	/**
-	 * Sample k elements from an array with proportion to their weights
-	 * @param weight
-	 * @param num
+	 * reservior sampling with k elements
+	 * @param totalNum
+	 * @param k
 	 * @return
 	 */
-	public static int[] AChaoWeightedResorviorSampling(double[] weight, int num){
-		int[] res = new int[num];
+	public static long[] resorviorSampling(long totalNum, int k){
+		if(k > totalNum) k = (int) totalNum;
+		long[] res = new long[k];
+		int idx = 0;
+		int pos =  -1;
 		Random rnd = new Random();
-		if(num >= weight.length) num = weight.length;
+		while(idx< k){
+			res[idx] = idx;
+			idx++;
+		}
+		while(idx < totalNum){
+			pos = rnd.nextInt(idx+1);
+			if(pos < k){
+				res[pos] = idx;
+			}
+			++idx;
+		}
+		return res;
+	}
+	
+	/**
+	 * Sample k elements from an array with proportion to their weights
+	 * @param weight
+	 * @param k
+	 * @return
+	 */
+	public static int[] AChaoWeightedResorviorSampling(double[] weight, int k){
+		int[] res = new int[k];
+		Random rnd = new Random();
+		if(k >= weight.length) k = weight.length;
 		int idx = 0;
 		double sum = 0;
-		while(idx < num) {
-			sum += weight[idx]/num;
+		while(idx < k) {
+			sum += weight[idx]/k;
 			res[idx++] = idx+1;
 		}
 		while(idx<weight.length){
-			sum += weight[idx]/num;
+			sum += weight[idx]/k;
 			if(rnd.nextDouble()< weight[idx]/sum){
-				res[rnd.nextInt(num)] = idx + 1;
+				res[rnd.nextInt(k)] = idx + 1;
 			}
 			idx++;
 		}
@@ -158,6 +182,38 @@ public class MathFun {
 				weight.remove(res[i]);
 			}else weight.set(res[i], weight.get(res[i]) -1);
 			res[i] = elements.get(res[i]);
+		}
+		return res;
+	}
+	
+	/**
+	 * sample k elements from 0 ~ n-1 with O(k) space and O(k) time
+	 * @param n
+	 * @param k
+	 * @return
+	 */
+	public static int[] sampleKIntfromN_withNoReplacement(int n, int k){
+		int[] res = null;
+		if(k > n){
+			res = new int[n];
+			for(int i = 0; i< n; i++) res[i] = i;
+			return res;
+		}
+		res = new int[k];
+		int tmp = 0, curVal;
+		Random rnd = new Random();
+		HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
+		
+		for(int i = 0; i< k; i++){
+			if(map.containsKey(i)) curVal = map.get(i); //need to remember to swap value, i could be chosen in previous steps
+			else curVal = i;
+			res[i] = i + rnd.nextInt(n);
+			if(map.containsKey(res[i])){
+				tmp = map.get(res[i]);
+				map.put(res[i], curVal);
+				res[i] = tmp;
+			}else map.put(res[i], curVal);
+			--n;
 		}
 		return res;
 	}
