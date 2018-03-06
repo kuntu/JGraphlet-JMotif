@@ -1,9 +1,23 @@
-# JMotif
+n# JMotif
 ## Introduction
 A Java program that
 1. Provides a fast algorithm to compute motif census in large scale network
-2. Provides a analytical model to compute average motif frequencies in random graphs give an in/out-degree-pair sequence. 
-- The 16 triad are named using M-A-N labeling (refer to the end of this readme file and triadLabeling.png), the census is in the order of [003 012 102 021D 021U 021C 111D 111U 030T 030C 201 120D 120U 120 C 210 300]
+2. Given a graph, provides a analytical model  to compute average motif frequencies in random graphs with the same 
+  * in/out-degree-pair sequence, 
+  * number of nodes and edges 
+  * number of mutual dyad(reciprocal edge), asymetric dyad (asymetric edge) and null dyad (null edge). 
+3. Provides methods to generate random graphs with the same 
+* in/out-degree-pair sequence, 
+* (reciprocal, incoming, outgoing)-degree-tripplet sequence, 
+* number of nodes and edges 
+* number of mutual dyad(reciprocal edge), asymetric dyad (asymetric edge) and null dyad (null edge).
+4. Provides simulation methods to compute motif census in random graphs with the same 
+* an in/out-degree-pair sequence, 
+* (reciprocal, incoming, outgoing)-degree-tripplet sequence, 
+* number of nodes and edges 
+* number of mutual dyad(reciprocal edge), asymetric dyad (asymetric edge) and null dyad (null edge).
+
+The 16 triad are named using M-A-N labeling (refer to the end of this readme file and triadLabeling.png), the census is in the order of [003 012 102 021D 021U 021C 111D 111U 030T 030C 201 120D 120U 120 C 210 300]
 ## Running example
 ### Compile files of motif census for static network and temporal networks
 For example, in command window under folder bin/
