@@ -38,11 +38,12 @@ public class StaticGraphExperiment {
 		if(!folder.exists()) folder.mkdirs();
 		if(command[0].equalsIgnoreCase("joinInOutDegree")){
 			
-			if(command[1].equalsIgnoreCase("ExpectedTriadFreqOptTime") && command.length >= 5){
+			if(command[1].equalsIgnoreCase("ExpectedTriadFreqOptTime") && command.length >= 4){
 				System.out.println("\n\t[Operation]:Analogical computation random graph and count motif frequency");
 				int motifSize = Integer.parseInt(command[2]);
-				int opt = Integer.parseInt(command[3]);
-				int repeat = Integer.parseInt(command[4]);
+				int opt = 0;
+				if(command.length >=5) opt = Integer.parseInt(command[4]);
+				int repeat = Integer.parseInt(command[3]);
 				double[] runTimes = new double[repeat];
 				double[][] outputM = null;
 				long startime = 0;
