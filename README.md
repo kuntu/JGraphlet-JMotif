@@ -22,9 +22,10 @@ The 16 triad are named using M-A-N labeling (refer to the end of this readme fil
 ### Compile files of motif census for static network and temporal networks
 For example, in command window under folder bin/
 
+javac -d ./ -sourcepath ../ ../StaticGraphExperiment.java
+
 javac -d ./ -sourcepath ../ ../TemporalGraphExperiment.java
 
-javac -d ./ -sourcepath ../ ../StaticGraphExperiment.java
 ### Prepare configuration file for batch processing of data files
 1. create a file to indicate whether to compute motif census in a network or to compute average motif frequencies in random graph. Refer to files configs/commands/ for more details
 2. create a file to list all the networks to be computed. Refer to files in configs/dataSources/ for more details
@@ -34,9 +35,9 @@ javac -d ./ -sourcepath ../ ../StaticGraphExperiment.java
 
 Example: in command window under folder bin/
 
-- java TemporalGraphExperiment ../configs/dataSources/dynamicGraphList.cfg ../configs/commands/triadDynamicGraph.cfg
-
 - java StaticGraphExperiment ../configs/dataSources/staticGraphList.cfg ../configs/commands/triadStaticGraph.cfg
+
+- java TemporalGraphExperiment ../configs/dataSources/dynamicGraphList.cfg ../configs/commands/triadDynamicGraph.cfg
 
 ### M-A-N Labeling of Triad
 A M-A-N label consists
