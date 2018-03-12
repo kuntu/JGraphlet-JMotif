@@ -18,7 +18,7 @@ A Java program that
 * number of mutual dyad(reciprocal edge), asymetric dyad (asymetric edge) and null dyad (null edge).
 
 The 16 triad are named using M-A-N labeling (refer to the end of this readme file and triadLabeling.png), the census is in the order of [003 012 102 021D 021U 021C 111D 111U 030T 030C 201 120D 120U 120 C 210 300]
-## Running example
+## Example for using JMotif using a script:
 ### 1. Compile files of motif census for static network and temporal networks
 For example, in command window under folder bin/
 
