@@ -2,8 +2,8 @@
 ## Introduction
 A Java program that
 1. Provides a fast algorithm to compute motif census in large scale network
-2. Given a graph, provides a analytical model  to compute average motif frequencies in random graphs with the same 
-  * in/out-degree-pair sequence, 
+2. Given a graph, provides a analytical model to compute average motif frequencies in random graphs (faster than simulation methods) with the same 
+  * in/out-degree-pair sequence 
   * number of nodes and edges 
   * number of mutual dyad(reciprocal edge), asymetric dyad (asymetric edge) and null dyad (null edge). 
 3. Provides methods to generate random graphs with the same 
