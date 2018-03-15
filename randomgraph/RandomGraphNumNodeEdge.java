@@ -70,8 +70,8 @@ public class RandomGraphNumNodeEdge implements RandomGraphModel,
 			r = (int) (mapping[i] / n);
 			c = (int) (mapping[i] % n);
 			if(c>=r) c++;
-			edges[i][0] = r+1;
-			edges[i][1] = c + 1;
+			edges[i][0] = r;
+			edges[i][1] = c;
 		}
 		return new GraphOfEdgeArray(edges, true, numNode);
 	}

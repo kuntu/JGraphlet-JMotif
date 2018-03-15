@@ -1,4 +1,5 @@
 package randomgraph;
+import graphs.GraphFactory;
 import graphs.GraphPropertiesToolBox;
 
 import java.io.*;
@@ -62,24 +63,9 @@ public class RandomGraphToolBox {
 	 */
 	public static int[][] generateEdgesFromInOutDegreeSeq(int[] inDeg, int[] outDeg, int numEdge, boolean allowLoopMultiEdge){
 		//assume all inputs are valid,
-		//create edges here
-		int[][] res = new int[numEdge][2];
-		int idx1 = 0, idx2= 0, deg = 0;
 		//initialize edges, allow loop and multi-edges
-		for(int i= 1; i<inDeg.length; i++){
-			deg = outDeg[i];
-			while(deg>0){
-				res[idx1++][0] = i;
-				deg--;
-			}
-			deg = inDeg[i];
-			while(deg>0){
-				res[idx2++][1] = i;
-				deg--;
-			}
-		}
+		int[][] res = initialDirectedEdgesFromInOutDegreeSequence(inDeg, outDeg, numEdge);
 		//MathFun.durstenfeldShuffleMatrixColumn(res, 0, numEdge);
-		MathFun.durstenfeldShuffleMatrixColumn(res, 1, numEdge);
 		if(!allowLoopMultiEdge) repairRandomEdgeGraph(res);
 		return res;
 	}
@@ -120,44 +106,137 @@ public class RandomGraphToolBox {
 	/**
 	 * generate undirected edges given degree sequence using configuration model, allows self loop and multi-edges between nodes
 	 * @param deg
-	 * @param numNode
 	 * @param numEdge
 	 * @return
 	 */
-	public static int[][] generateUndirectedEdgesWithConfigurationModel(int[] deg, int numNode, int numEdge){
-		int[][] res = new int[numEdge][2];
-		int idx = 0;
-		for(int i = 0; i< deg.length; i++){
-			for(int j =0 ; j< deg[i]; j++){
-				res[idx/2][idx%2] = i;
-				++idx;
-			}
-		}
-		MathFun.durstenfeldShuffleMatrixColumn(res, 1, res.length);
-		return res;
+	public static int[][] generateUndirectedEdgesWithConfigurationModel(int[] deg, int numEdge){
+		return initialUndirectedEdgesFromDegreeSequence(deg, numEdge);
 	}
 	
+	/**
+	 * 
+	 * @param tripplet
+	 * @param numNode
+	 * @param numReciprocalEdge
+	 * @param numAsymmetricEdge
+	 * @param reSample
+	 * @return
+	 */
 	public static int[][] generateDirectedEdgesWithReciprocalAndInOutDegreeTripplet(int[][] tripplet, int numNode, int numReciprocalEdge, int numAsymmetricEdge, int reSample){
-		int[][] undirectEdges = generateUndirectedEdgesWithConfigurationModel(tripplet[0], numNode, numReciprocalEdge);
-		if(reSample > 0) repairRandomEdgeGraph(undirectEdges, false, 0, reSample);
-		int[][] res = new int[numReciprocalEdge * 2 + numAsymmetricEdge][2];
+		int[][] undirectEdges = generateUndirectedEdgesWithConfigurationModel(tripplet[0], numReciprocalEdge);
+		int[][] asymmetricEdges = initialDirectedEdgesFromInOutDegreeSequence(tripplet[1], tripplet[2], numAsymmetricEdge);
+		boolean success = true;
+		int cnt = 0;
+		if(reSample > 0) {
+			success &= repairRandomEdgeGraph(undirectEdges, false, 0, reSample);
+			success &= repairRandomEdgeGraph(asymmetricEdges, false, 0, reSample);
+			cnt = repeairEdgesRandomGraphWReciprocalInOutSeq(undirectEdges, asymmetricEdges, reSample);
+		}
+		success &= (cnt>=0) ;
+		int[][] res = new int[numReciprocalEdge * 2 + numAsymmetricEdge][];
 		int begIdx = undirectEdges.length * 2;
 		for(int i=0;i<undirectEdges.length; i++){
 			res[i*2] = undirectEdges[i];
 			res[i*2+1] = new int[]{undirectEdges[i][1], undirectEdges[i][0]};
 		}
-		int[][] asymmetricEdges = generateEdgesFromInOutDegreeSeq(tripplet[1], tripplet[2], numAsymmetricEdge, true);
 		for(int i = begIdx; i < res.length; i++){
 			res[i] = asymmetricEdges[i-begIdx];
 		}
-		if(reSample > 0) repairRandomEdgeGraph(res, true, begIdx, reSample);
+		if(reSample>0 &&!success) {
+			System.out.println("\n\t reparing...");
+			return removeLoopAndMultiEdges(res);
+		}
 		return res;
 	}
+	private static int[][] removeLoopAndMultiEdges(int[][] edges){
+		HashSet<Long> set = new HashSet<Long>();
+		long edgeCode = 0L;
+		LinkedList<int[]> ls = new LinkedList<int[]>();
+		for(int[] e: edges){
+			if(e[0] == e[1]) continue;
+			edgeCode = e[0];
+			edgeCode = (edgeCode<<32) + e[1];
+			if(set.add( edgeCode)) ls.add(e);
+		}
+		if(set.size() == edges.length) return edges;
+
+		int[][] res =  new int[set.size()][];
+		{
+			int idx = 0;
+			for(int[] e: ls){
+				res[idx] = e;
+				++idx;
+			}
+		}
+		return res;
+	}
+	public static int repeairEdgesRandomGraphWReciprocalInOutSeq(int[][] unDirEdge, int[][] dirEdge, int repeat){
+		int res = -1;
+		int sign = 1;
+		HashMap<Long, Integer> unDirMap = new HashMap<Long, Integer>(), dirMap = new HashMap<Long, Integer>();
+		HashSet<Long> duplicatedKeySet = new HashSet<Long>();
+		long uKey = 0, dKey = 0;
+		long[] newKeys = new long[2];
+		//get undirected node pairs that overlap with directed edges
+		LinkedList<int[]> toRepair = new LinkedList<int[]>();
+		for(int i = 0; i< unDirEdge.length; ++i){
+			uKey = getUndirectedEdgeKey(unDirEdge[i][0], unDirEdge[i][1]);
+			unDirMap.put(uKey, i);
+		}
+		for(int i = 0; i< dirEdge.length; ++i){
+			dKey = getUndirectedEdgeKey(dirEdge[i][0], dirEdge[i][0]);
+			if(unDirMap.containsKey(dKey)){
+				toRepair.add(new int[]{unDirMap.get(dKey), i});	// recoord the idx of reciprocal-pair and asymmetric pair
+				duplicatedKeySet.add(dKey);
+			}
+			dirMap.put(dKey, i);
+		}
+		// repair with rewiring
+		Random rnd = new Random();
+		int r = 0, cand = 0;
+		for(int[] idx: toRepair){
+			r = 0;
+			uKey = getUndirectedEdgeKey(unDirEdge[idx[0]][0], unDirEdge[idx[0]][1]);
+			if(!duplicatedKeySet.contains(uKey)) continue;
+			while(r < repeat){
+				if(rnd.nextInt(2) == 1 && unDirEdge.length > 1){// rewire with reciprocal(undirected) edges
+					cand = rnd.nextInt(unDirEdge.length - 1);
+					if(cand>= idx[0]) ++cand;
+					if(canRewire(unDirEdge[idx[0]], unDirEdge[cand], unDirMap, dirMap, newKeys, false)){
+						dKey = getUndirectedEdgeKey(unDirEdge[cand][0], unDirEdge[cand][1]);
+						rewireEdges(unDirEdge[idx[0]], unDirEdge[cand], unDirMap, newKeys, uKey, dKey, duplicatedKeySet);
+						break;
+					}
+				}
+				//rewire directed
+				if(unDirEdge.length >1){
+					cand = rnd.nextInt(unDirEdge.length - 1);
+					if(cand>= idx[0]) ++cand;
+					if(canRewire(dirEdge[idx[1]], dirEdge[cand], unDirMap, dirMap, newKeys, false)){
+						dKey = getUndirectedEdgeKey(dirEdge[cand][0], dirEdge[cand][1]);
+						rewireEdges(dirEdge[idx[0]], dirEdge[cand], unDirMap, newKeys, uKey, dKey, duplicatedKeySet);
+						break;
+					}
+				}
+				++r;
+			}
+			if(r>=repeat) sign = -1;
+			res += r;
+		}
+		return res * sign;
+	}
 	
-	
-	public static void repairRandomEdgeGraph(int[][] edges, boolean dir, int begIdx, int reSampleRepeat){
+	/**
+	 * rewire undirected/directed edges to remove loop and multi-edges, leave the first begIdx elements in [0, begIdx-1] unchanged.
+	 * @param edges
+	 * @param dir	
+	 * @param begIdx
+	 * @param reSampleRepeat
+	 */
+	public static boolean repairRandomEdgeGraph(int[][] edges, boolean dir, int begIdx, int reSampleRepeat){
 		HashSet<Long> set = new HashSet<Long>();
 		HashMap<Long, Integer> duplicateKeys = new HashMap<Long, Integer>();
+		boolean success = true;
 		long key = 0, tmp=0;
 		LinkedList<Integer> toRepair = new LinkedList<Integer>();
 		for(int i = 0; i< edges.length; i++){
@@ -172,7 +251,7 @@ public class RandomGraphToolBox {
 				}else set.add(key);
 			}
 		}
-		if(toRepair.isEmpty()) return;
+		if(toRepair.isEmpty()) return true;
 		Random rnd = new Random();
 		int size = edges.length - begIdx, candidateIdx = 0, cnt = 0;
 		for(int i: toRepair){
@@ -198,9 +277,8 @@ public class RandomGraphToolBox {
 				cnt++;
 			}while( cnt <reSampleRepeat);
 			if(cnt >= reSampleRepeat){
-				if(cnt == reSampleRepeat)
-					System.out.printf("hard to repair loop and multi-edge with resample for %d times\n", cnt);
-				
+				if(cnt == reSampleRepeat) success = false;
+					//System.out.printf("hard to repair loop and multi-edge with resample for %d times\n", cnt);
 				continue;
 			}
 			set.add(key);
@@ -222,6 +300,7 @@ public class RandomGraphToolBox {
 			edges[i][1] = edges[candidateIdx][1];
 			edges[candidateIdx][1] = cnt;
 		}
+		return success;
 	}
 	private static long edgeHashCode(int s, int t, boolean dir){
 		long res = 0;
@@ -326,6 +405,146 @@ public class RandomGraphToolBox {
 				return false;
 			}
 		}
+		return true;
+	}
+	
+	/**
+	 * 
+	 * @param a
+	 * @param repeat
+	 * @return
+	 */
+	public static int repairEdgesAsOneArray(int[] a, int repeat){
+		int cnt = 0;
+		int len = a.length;
+		if(len%2!=0){
+			System.out.println("edge array not valid");
+			return -1;
+		}
+		len /= 2 ;
+		HashSet<Long> keySet = new HashSet<Long>();
+		HashMap<Long, Integer> duplicatedCount = new HashMap<Long, Integer>();
+		LinkedList<Integer> toResample = new LinkedList<Integer>();
+		long key = 0, candKey;
+		for(int i =0; i< len; ++i){
+			if(a[i*2] == a[i*2+1]){	// loop edge
+				toResample.add(i);
+				continue;
+			}
+			//multi-edge
+			key = getUndirectedEdgeKey(a[i*2], a[i*2+1]);
+			if(keySet.contains(key)) {
+				toResample.add(i);
+				if(duplicatedCount.containsKey(key)) duplicatedCount.put(key, duplicatedCount.get(key) + 1);
+				else duplicatedCount.put(key, 1);
+			}else keySet.add(key);
+		}
+		// resample for duplicated edges
+		Random rnd = new Random();
+		int cand = -1, r = 0, sIdx= 0, tIdx = 0;
+		--len;	//use for resample len-1 edge to rewire edges
+		int[] curEdge = new int[2], candEdge = new int[2];
+		long[] newKeys = new long[2];
+		for(int i: toResample){
+			r = 0;
+			sIdx = 2*i;
+			tIdx = 2 * i + 1;
+			curEdge[0] = a[sIdx];
+			curEdge[1] = a[tIdx];
+			key = getUndirectedEdgeKey(curEdge[0], curEdge[1]);
+			if(!duplicatedCount.containsKey(key)) continue;	// an invalid edge could rewired with others in previous step. no need to rewire  
+			while(r < repeat){
+				cand = rnd.nextInt(len);
+				if(cand>= i) ++cand;
+				candEdge[0] = a[sIdx];
+				candEdge[1] = a[tIdx];
+				if(!canRewire(curEdge, candEdge, keySet, newKeys, false)){
+					++r;
+				}else{
+					candKey = getUndirectedEdgeKey(candEdge[0], candEdge[1]);
+					rewireEdges(curEdge, candEdge, keySet, newKeys, key, candKey, duplicatedCount);
+					a[tIdx] = curEdge[1];
+					a[cand * 2 + 1] = candEdge[1];
+					break;
+				}
+			}
+			cnt += r;
+			if(r>= repeat) System.out.println("[Warning]: Remove a loop or multidege-edge fail with resampling less than " + repeat + " times\n\t increase resampling time" );
+		}
+		return cnt;
+	}
+	private static long getEdgeKey(int s, int t){
+		long res = s;
+		return (res<<32) + t;
+	}
+	private static long getUndirectedEdgeKey(int s, int t){
+		if(s> t) return getEdgeKey(t, s);
+		else return getEdgeKey(s,t );
+	}
+	private static void getEdgeFromKey(long key, int[] edge){
+		edge[1] = (int) (key%(1L<<32));
+		edge[0] = (int) (key>>32);
+	}
+	/**
+	 * check if two edges can be re-wired given the current (un)directed edges
+	 * @param curEdge
+	 * @param candEdge
+	 * @param edgeKeys
+	 * @param keys
+	 * @param directedEdge
+	 * @return
+	 */
+	private static boolean canRewire(int[] curEdge, int[] candEdge, HashSet<Long> edgeKeys, long[] keys, boolean directedEdge){
+		if(curEdge[0] == candEdge[0] || curEdge[0] == candEdge[1] || curEdge[1] == candEdge[0] || curEdge[1] == candEdge[1]) return false;
+		keys[0] = directedEdge? getEdgeKey(curEdge[0], candEdge[1]) : getUndirectedEdgeKey(curEdge[0], candEdge[1]);
+		if(edgeKeys.contains(keys[0])) return false;
+		keys[1] = directedEdge? getEdgeKey(candEdge[0], curEdge[1]) : getUndirectedEdgeKey(candEdge[0], curEdge[1]);
+		if(edgeKeys.contains(keys[1])) return false;
+		return true;
+	}
+	private static boolean canRewire(int[] curEdge, int[] candEdge, HashMap<Long, Integer> map1, HashMap<Long, Integer> map2, long[] keys, boolean directedEdge){
+		if(curEdge[0] == candEdge[0] || curEdge[0] == candEdge[1] || curEdge[1] == candEdge[0] || curEdge[1] == candEdge[1]) return false;
+		keys[0] = directedEdge? getEdgeKey(curEdge[0], candEdge[1]) : getUndirectedEdgeKey(curEdge[0], candEdge[1]);
+		if(map1.containsKey(keys[0]) || map2.containsKey(keys[0])) return false;
+		keys[1] = directedEdge? getEdgeKey(candEdge[0], curEdge[1]) : getUndirectedEdgeKey(candEdge[0], curEdge[1]);
+		if(map2.containsKey(keys[1]) || map2.containsKey(keys[1])) return false;
+		return true;
+	}
+	private static boolean rewireEdges(int[] curEdge, int[] candEdge, HashSet<Long> edgeKeys, long[] newKeys, long curKey, long candKey, HashMap<Long, Integer> duplicatedCount){
+		//remove key of candidate edge
+		int cnt = 0;
+		if(duplicatedCount.containsKey(candKey)){
+			cnt = duplicatedCount.get(candKey);
+			if(cnt == 1) duplicatedCount.remove(candKey);
+			else duplicatedCount.put(candKey, cnt - 1);
+		}else edgeKeys.remove(candKey);
+		//remove curKey
+		if(duplicatedCount.containsKey(curKey)){
+			cnt = duplicatedCount.get(curKey);
+			if(cnt == 1) duplicatedCount.remove(curKey);
+			else duplicatedCount.put(curKey, cnt - 1);
+		}
+		//add new keys
+		for(long l: newKeys) edgeKeys.add(l);
+		cnt = curEdge[1];
+		curEdge[1] = candEdge[1];
+		candEdge[1] = cnt;
+		return true;
+	}
+	private static boolean rewireEdges(int[] curEdge, int[] candEdge, HashMap<Long, Integer> keyMap, long[] newKeys, long curKey, long candKey, HashSet<Long> duplicatedKeySet){
+		// current Edge 
+		int tmp  = keyMap.get(curKey);
+		tmp = keyMap.remove(curKey);
+		keyMap.put(newKeys[0], tmp);
+		//candidate edge
+		tmp = keyMap.get(candKey);
+		keyMap.remove(candKey);
+		keyMap.put(newKeys[1], tmp);
+		duplicatedKeySet.remove(curKey);
+		//rewire target in edges;
+		tmp = curEdge[1];
+		curEdge[1] = candEdge[1];
+		candEdge[1] = tmp;
 		return true;
 	}
 	
@@ -517,8 +736,8 @@ public class RandomGraphToolBox {
 			System.out.println("num of Possible edges is larger than Max Integer. user method that supporst large scale graphs");
 			return new int[0][0];
 		}
-		if(k > siz* (siz-1)/2) k = siz * (siz-1)/2;
-		int[] sampled = MathFun.sampleKIntfromN_withNoReplacement(siz * (siz-1)/2, k);
+		if(k > N) k = (int) N;
+		int[] sampled = MathFun.sampleKIntfromN_withNoReplacement((int) N, k);
 		int[][] res = new int[k][2];
 		ArrayList<Integer> al = new ArrayList<Integer>();
 		int tmp =0;
@@ -531,14 +750,67 @@ public class RandomGraphToolBox {
 		for(int i =0; i< k; i++){
 			tmp = Collections.binarySearch(al, sampled[i]);
 			if(tmp > -1){
-				res[i][0] = tmp + 1;
+				res[i][0] = tmp;
 			}else {
 				tmp = -tmp-1;	//garantee to be >=1, 
-				res[i][0] = tmp;
+				res[i][0] = tmp-1;
 				--tmp;
 			}
-			res[i][1] = sampled[i] - al.get(tmp) + res[i][0] + 1;
+			res[i][1] = sampled[i] - al.get(tmp) + res[i][0]+1;
 		}
+		return res;
+	}
+	
+	//--------- supporting function
+	/**
+	 * 
+	 * @param inSeq
+	 * @param outSeq
+	 * @return
+	 */
+	public static int[][] initialDirectedEdgesFromInOutDegreeSequence(int[] inSeq, int[] outSeq, int numEdge){
+		int[][] res = new int[numEdge][2];
+		int idx1 = 0, idx2= 0, deg = 0;
+		//initialize edges, allow loop and multi-edges
+		for(int i= 0; i<inSeq.length; i++){
+			deg = outSeq[i];
+			while(deg>0){
+				res[idx1++][0] = i;
+				deg--;
+			}
+			deg = inSeq[i];
+			while(deg>0){
+				res[idx2++][1] = i;
+				deg--;
+			}
+		}
+		MathFun.durstenfeldShuffleMatrixColumn(res, 1, numEdge);
+		return res;
+	}
+	
+	public static int[][] initialUndirectedEdgesFromDegreeSequence(int[] seq, int numEdge){
+		int[] a = new int[numEdge * 2];
+		int deg = 0, idx = 0;
+		for(int i = 0; i< seq.length; ++i){
+			deg = seq[i];
+			while(deg > 0){
+				a[idx] = i;
+				++idx;
+				--deg;
+			}
+		}
+		MathFun.durstenfeldShuffle(a, a.length);
+		int[][] res = new int[numEdge][2];
+		for(int i = 0; i<numEdge; ++i){
+			res[i][0] = a[i*2];
+			res[i][1] = a[i*2 + 1];
+			if(res[i][0] > res[i][1]){
+				deg = res[i][0];
+				res[i][0] = res[i][1];
+				res[i][1] = deg;
+			}
+		}
+		repairRandomEdgeGraph(res, true, 0, 1000);
 		return res;
 	}
 }

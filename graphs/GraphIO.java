@@ -108,15 +108,13 @@ public class GraphIO {
 				if(i==1) numEdge++;
 			}
 		}
-		int node = 1;
 		int[][] edges = new int[numEdge][2];
 		numEdge = 0;
 		for(int i = 0; i< m.length; i++){
-			node = i + 1;
 			for(int j = 0; j < m[i].length; j++){
 				if(m[i][j] >0 && i != j){
-					edges[numEdge][0] = node;
-					edges[numEdge][1] = j+1;
+					edges[numEdge][0] = i;
+					edges[numEdge][1] = j;
 					++numEdge;
 				}
 			}

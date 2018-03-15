@@ -1,11 +1,10 @@
 import java.io.*;
 import java.util.*;
 
-import old.GraphNodePairVal;
-import old.MathFun;
-import old.MotifGraph;
-import old.NetworkConnectedComponents;
-import old.TriadTransition;
+import graphs.*;
+import mathFunctions.*;
+import motifs.*;
+import randomgraph.*;
 
 
 public class ExperimentTempNetTriad {
@@ -192,10 +191,10 @@ public class ExperimentTempNetTriad {
 			}else if(task.equalsIgnoreCase("splitStaticComponent")){
 				System.out.println("splitStaticComponent");
 				//suppose a random graph with the same number of dyads, same number of nodes as each snapshot of temporal network, compute the probability distribution of this random network
-				NetworkConnectedComponents ncc = new NetworkConnectedComponents();
-				ncc.getComponentsFromEdgeListsFile(tt.numNodes, tt.time, tt.edgeGraph, true);
-				ncc.nodeIDMapping(true);
-				tt.outputSplitedGraphs(ncc.mapping, ncc.componentSize);
+//				NetworkConnectedComponents ncc = new NetworkConnectedComponents();
+//				ncc.getComponentsFromEdgeListsFile(tt.numNodes, tt.time, tt.edgeGraph, true);
+//				ncc.nodeIDMapping(true);
+//				tt.outputSplitedGraphs(ncc.mapping, ncc.componentSize);
 			}
 		}
 	}
@@ -260,36 +259,36 @@ public class ExperimentTempNetTriad {
 				for(int j=1; j< granName.length; j++){	// not for hourd
 					String gn = granName[j];
 					configFile = inDir  +  nn + gn + ".cfg";
-					splitEdgeListNetwork(configFile);
+					//splitEdgeListNetwork(configFile);
 				}
 			}
 		}
 	}
 	
-	public static void splitEdgeListNetwork(String configFile){
-		try{
-			BufferedReader br = new BufferedReader(new FileReader(configFile));
-			//read file setting
-			String dataFile = br.readLine();
-			TriadTransition tt = TriadTransition.getDynNetFromEdgeFile(dataFile);
-			tt.dataName = br.readLine();
-			tt.outputDir = br.readLine()+"/"+tt.dataName+"/";	//need to change output dir
-			tt.outputDir = "/nfs/pantanal/scratch1/kuntu/data/dynNet/splitted/"+tt.dataName + "/";
-			File outDir = new File(tt.outputDir);
-			if(!outDir.exists()) {
-				outDir.mkdirs();
-				System.out.println("\tcreate: "+ tt.outputDir);
-			}
-			
-						NetworkConnectedComponents ncc = new NetworkConnectedComponents();
-						ncc.getComponentsFromEdgeListsFile(tt.numNodes, tt.time, tt.edgeGraph, true);
-						ncc.nodeIDMapping(true);
-						tt.outputSplitedGraphs(ncc.mapping, ncc.componentSize);
-			br.close();
-		}catch(Exception e){
-			e.printStackTrace();
-		}
-	}
+//	public static void splitEdgeListNetwork(String configFile){
+//		try{
+//			BufferedReader br = new BufferedReader(new FileReader(configFile));
+//			//read file setting
+//			String dataFile = br.readLine();
+//			TriadTransition tt = TriadTransition.getDynNetFromEdgeFile(dataFile);
+//			tt.dataName = br.readLine();
+//			tt.outputDir = br.readLine()+"/"+tt.dataName+"/";	//need to change output dir
+//			tt.outputDir = "/nfs/pantanal/scratch1/kuntu/data/dynNet/splitted/"+tt.dataName + "/";
+//			File outDir = new File(tt.outputDir);
+//			if(!outDir.exists()) {
+//				outDir.mkdirs();
+//				System.out.println("\tcreate: "+ tt.outputDir);
+//			}
+//			
+//						NetworkConnectedComponents ncc = new NetworkConnectedComponents();
+//						ncc.getComponentsFromEdgeListsFile(tt.numNodes, tt.time, tt.edgeGraph, true);
+//						ncc.nodeIDMapping(true);
+//						tt.outputSplitedGraphs(ncc.mapping, ncc.componentSize);
+//			br.close();
+//		}catch(Exception e){
+//			e.printStackTrace();
+//		}
+//	}
 	
 	public static void motifTransitionForSetsOfData(String config){
 		try{

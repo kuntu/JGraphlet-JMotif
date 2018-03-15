@@ -12,6 +12,12 @@ public class GraphOfEdgeArray extends BasicGraph implements GraphProperty, Motif
 		this.directed = direct;
 		size =numNode;
 	}
+	public GraphOfEdgeArray(int[][] e, boolean direct, int numNode, String[] nodeName){
+		nodeNames = nodeName;
+		edges = e;
+		this.directed = direct;
+		size =numNode;
+	}
 	@Override
 	public int[][] getDegreeSeq() {
 		return GraphPropertiesToolBox.getInOutDegreeFromEdges(size, edges);
@@ -32,7 +38,7 @@ public class GraphOfEdgeArray extends BasicGraph implements GraphProperty, Motif
 		for(int i = 0; i<edges.length; i++){
 			for(int j=0; j< 2; j++){
 				if(!hm.containsKey(edges[i][j])){
-					newEdges[i][j] = hm.size() + 1;
+					newEdges[i][j] = hm.size();
 					hm.put(edges[i][j], newEdges[i][j]);
 				}else{
 					newEdges[i][j] = hm.get(edges[i][j]);

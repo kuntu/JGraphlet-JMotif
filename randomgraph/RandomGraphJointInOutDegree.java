@@ -16,7 +16,7 @@ public class RandomGraphJointInOutDegree implements RandomGraphModel, RandomGrap
 	public RandomGraphJointInOutDegree(int[][] degreeSeq){
 		numEdge = 0;
 		int tmp =0;
-		for(int i=1; i< degreeSeq[0].length; i++){
+		for(int i=0; i< degreeSeq[0].length; i++){
 			numEdge += degreeSeq[0][i];
 			tmp += degreeSeq[1][i];
 		}
@@ -27,7 +27,7 @@ public class RandomGraphJointInOutDegree implements RandomGraphModel, RandomGrap
 			numNode = 0;
 		}
 		jointIODegreeSequence = degreeSeq;
-		numNode = degreeSeq[0].length - 1;
+		numNode = degreeSeq[0].length;
 		degFreq = graphs.GraphPropertiesToolBox.getJointInOutFreqFromInOutDegree(jointIODegreeSequence);
 		System.out.printf("RandomGraph Created:\n\tnum nodes: %d\n\t num Edge: %d\n\t", numNode, numEdge);
 		RandomGraphToolBox.getExpectedConnectProbWJointInOutDegSeq(jointIODegreeSequence[0], jointIODegreeSequence[1]);

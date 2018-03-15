@@ -37,35 +37,15 @@ public class GraphFactory {
 					edge[0] = Integer.parseInt(edgeStr[0]);
 					edge[1] = Integer.parseInt(edgeStr[1]);
 					if(edge[0]!=edge[1]) edgeList.add(edge);
-					minID = Math.min(minID, edge[0]);
-					minID = Math.min(minID, edge[1]);
 				}
 			}
 			int[][] edges = new int[edgeList.size()][];
 			int idx = 0;
 			for(int[] e: edgeList) edges[idx++] = e;
+
+			String[] nameInt = resetNodeIDsInEdges(edges);
+			size = nameInt.length;
 			edges = removeLoopAndMultiEdges(edges);
-			String[] nameInt = null;
-			if(size == -1){
-				HashSet<Integer> hs = new HashSet<Integer>();
-				for(int[] e: edges){
-					hs.add(e[0]);
-					hs.add(e[1]);
-					size = Math.max(size, e[1]);
-					size = Math.max(size, e[0]);
-				}
-				if(size >= 2* hs.size() || minID == 0){
-					size = hs.size();
-					System.out.println("\n[warning]: Node ID is too large for graph size or contains '0'. \n\tGraph size is set to the number of unique node IDs");
-					HashMap<Integer, Integer> hm = new HashMap<Integer, Integer>();
-					for(int i: hs) hm.put(i, hm.size()+1);
-					for(int i=0; i< edges.length; i++){
-						edge = edges[i];
-						edge[0] = hm.get(edge[0]);
-						edge[1] = hm.get(edge[1]);
-					}
-				}
-			}
 			graph = new GraphOfEdgeArray(edges, true, size);
 			graph.nodeNames = nameInt;
 			br.close();
@@ -119,33 +99,34 @@ public class GraphFactory {
 				edges[idx][0] = (int) (l>>32);
 				++idx;
 			}
-			String[] nameInt = null;
-			if(size == -1){
-				HashSet<Integer> hs = new HashSet<Integer>();
-				for(int[] e: edges){
-					hs.add(e[0]);
-					hs.add(e[1]);
-					size = Math.max(size, e[1]);
-					size = Math.max(size, e[0]);
-				}
-				if(size >= 2* hs.size()){
-					System.out.println("\t[warning]: Node ID is too large for graph size for computation efficiency. \n\tGraph size is set to the number of unique node IDs");
-					size = hs.size();
-					nameInt = new String[size];
-					size = 0;
-					for(int i: hs) nameInt[size++] = String.valueOf(i);
-					Arrays.sort(nameInt);
-					HashMap<String, Integer> hm = new HashMap<String, Integer>();
-					for(int i=0; i<nameInt.length; i++){
-						hm.put(nameInt[i], i+1);
-					}
-					for(int i=0; i< edges.length; i++){
-						edge = edges[i];
-						edge[0] = hm.get(String.valueOf(edge[0]));
-						edge[1] = hm.get(String.valueOf(edge[1]));
-					}
-				}
-			}
+			String[] nameInt = resetNodeIDsInEdges(edges);
+			size = nameInt.length;
+//			if(size == -1){
+//				HashSet<Integer> hs = new HashSet<Integer>();
+//				for(int[] e: edges){
+//					hs.add(e[0]);
+//					hs.add(e[1]);
+//					size = Math.max(size, e[1]);
+//					size = Math.max(size, e[0]);
+//				}
+//				if(size >= 2* hs.size()){
+//					System.out.println("\t[warning]: Node ID is too large for graph size for computation efficiency. \n\tGraph size is set to the number of unique node IDs");
+//					size = hs.size();
+//					nameInt = new String[size];
+//					size = 0;
+//					for(int i: hs) nameInt[size++] = String.valueOf(i);
+//					Arrays.sort(nameInt);
+//					HashMap<String, Integer> hm = new HashMap<String, Integer>();
+//					for(int i=0; i<nameInt.length; i++){
+//						hm.put(nameInt[i], i+1);
+//					}
+//					for(int i=0; i< edges.length; i++){
+//						edge = edges[i];
+//						edge[0] = hm.get(String.valueOf(edge[0]));
+//						edge[1] = hm.get(String.valueOf(edge[1]));
+//					}
+//				}
+//			}
 			graph = new GraphOfEdgeArray(edges, true, size);
 			graph.nodeNames = nameInt;
 			br.close();
@@ -269,5 +250,30 @@ public class GraphFactory {
 	public static RandomGraphNumMANPair getRandomGraphW_MAN_Pair(GraphOfEdgeArray graph){
 		int[] numNodeMutAsy = GraphPropertiesToolBox.getNumReciprocalAsymmetricNullPair(graph.edges);
 		return new RandomGraphNumMANPair(numNodeMutAsy[0], numNodeMutAsy[1], numNodeMutAsy[2]);
+	}
+	
+	public static String[] resetNodeIDsInEdges(int[][] edges){
+		HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
+		LinkedList<String> ls = new LinkedList<String>();
+		int idx = -1;
+		for(int[] e: edges){
+			if(!map.containsKey(e[0])) {
+				idx = map.size();
+				ls.add(""+e[0]);
+				map.put(e[0], idx);
+			}
+			if(!map.containsKey(e[1])) {
+				idx = map.size();
+				ls.add(""+e[1]);
+				map.put(e[1], idx);
+			}
+		}
+		String[] nodeNames = new String[map.size()];
+		ls.toArray(nodeNames);
+		for(int i = 0; i< edges.length; ++i){
+			edges[i][0] = map.get(edges[i][0]);
+			edges[i][1] = map.get(edges[i][1]);
+		}
+		return nodeNames;
 	}
 }

@@ -87,13 +87,14 @@ public class RandomGraphNumMANPair implements RandomGraphModel, RandomGraphMotif
 		int tmp = 0;
 		for(int i = 0; i< numAsym; i++){
 			edges[idx] = nodePairs[numMutual + i];
-			if(rnd.nextInt()%2 ==1){
+			if(rnd.nextInt(2) ==1){
 				tmp = edges[idx][1];
 				edges[idx][1] = edges[idx][0];
 				edges[idx][0] = tmp;
 			}
 			++idx;
 		}
+		RandomGraphToolBox.repairRandomEdgeGraph(edges, true, numMutual*2, 1000);
 		return new GraphOfEdgeArray(edges, true, numNode);
 	}
 	

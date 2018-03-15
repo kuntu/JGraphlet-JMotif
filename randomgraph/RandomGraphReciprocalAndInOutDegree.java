@@ -6,7 +6,7 @@ import motifs.RandomGraphMotif;
 
 public class RandomGraphReciprocalAndInOutDegree implements RandomGraphModel,
 		RandomGraphMotif {
-	private final static int RESAMPLE_REPEAT = 1000;
+	public static int RESAMPLE_REPEAT = 1000;
 	public int[][] trippletSeq;
 	public int numNode;
 	public int numReciprocal;

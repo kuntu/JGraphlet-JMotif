@@ -3,13 +3,13 @@ import java.util.*;
 
 public class GraphPropertiesToolBox {
 	/**
-	 * obtain in/out degree sequences from edge array, the result is represented as a 2 by (N+1) matrix m. m[0][i] is the in degree of node i, where i\in [1, N], i=0 is consider as tmpvarialbe and has no meaning
+	 * obtain in/out degree sequences from edge array, the result is represented as a 2 by N matrix m. m[0][i] is the in degree of node i, where i\in [1, N], i=0 is consider as tmpvarialbe and has no meaning
 	 * @param size num of nodes in the graph
 	 * @param edges, array ofdirected edges
-	 * @return a array int[2][N+1], inOut[0][i] is  in degree of node i, (node 0 is not counted), inOut[1][i] is the out degree of node i. 
+	 * @return a array int[2][N], inOut[0][i] is  in degree of node i+1,  inOut[1][i] is the out degree of node i+1. 
 	 */
 	public static int[][] getInOutDegreeFromEdges(int size, int[][] edges){
-		int[][] inOut = new int[2][size+1];
+		int[][] inOut = new int[2][size];
 		for(int[] edge:edges){
 			inOut[0][edge[1]]++;
 			inOut[1][edge[0]]++;
@@ -27,7 +27,7 @@ public class GraphPropertiesToolBox {
 	public static int[][] getJointInOutFreqFromInOutDegree(int[][] inOutDeg){
 		HashMap<Long, Integer> hm = new HashMap<Long, Integer>();
 		long e = 0;
-		for(int i=1; i<inOutDeg[0].length; i++){
+		for(int i=0; i<inOutDeg[0].length; i++){
 			e =(long) inOutDeg[0][i];
 			e = (e<<32) + inOutDeg[1][i];
 			if(!hm.containsKey(e)) hm.put(e, 1);
@@ -100,6 +100,8 @@ public class GraphPropertiesToolBox {
 		return trippleSeq;
 	}
 	
+	
+	
 	/**
 	 * count the number of reciprocal, asymmetric and null node-pair
 	 * @param edges edges from the graph
@@ -119,6 +121,11 @@ public class GraphPropertiesToolBox {
 			if(!neighbor.contains(e[1])){
 				if(simpleGraph.containsKey(e[1]) && simpleGraph.get(e[1]).contains(e[0])) res[1]++;
 				neighbor.add(e[1]);
+			}
+			neighbor = simpleGraph.get(e[1]);
+			if(neighbor == null){
+				neighbor = new HashSet<Integer>();
+				simpleGraph.put(e[1], neighbor);
 			}
 		}
 		res[0] = simpleGraph.size();
