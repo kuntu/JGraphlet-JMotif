@@ -40,7 +40,7 @@ public class DataPreprocessing {
 			if(!folder.exists()) folder.mkdirs();
 			if(command[1].equalsIgnoreCase("convertMatrixToEdgeList")){
 				System.out.println("\n\t[Operation]:conver matrix to edge list");
-				int[][] m = GraphIO.convertAdjacentMatrixToEdgeList(GraphIO.getMatrixFromFile(inFile));
+				int[][] m = GraphIO.convertAdjacentMatrixToEdgeList(GraphIO.getAdjacencyMatrixFromFile(inFile));
 				outFile = outDir + "/"  + inFile.substring(inFile.lastIndexOf('/')+1, inFile.lastIndexOf("_adj")) + "EdgeList.txt";
 				GraphIO.outputMatrix(outFile, m);
 			}else if(command[1].equalsIgnoreCase("ID2Integer")){

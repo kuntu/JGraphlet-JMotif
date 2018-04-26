@@ -44,8 +44,8 @@ public class RandGraphGenerator {
 				sb.setLength(sb.length()-1);
 				bw.newLine();
 				bw.write(sb.toString());
-				bw.close();
 			}
+			bw.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -54,7 +54,7 @@ public class RandGraphGenerator {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		RandGraphGenerator rgg = new RandGraphGenerator();
-		rgg.saveTemporalRandomGraph("./dataSets/testData/dynGraph.txt", 1, 100, 15);
+		rgg.saveTemporalRandomGraph("./dataSets/testData/dynGraph.txt", 4, 50, 5);
 	}
 
 }

@@ -198,6 +198,13 @@ public class GraphFactory {
 		return g;
 	}
 	
+	public static TemporalTripletEdgeGraph makeTemporalTripletGraphFromFile(String file){
+		TemporalTripletEdgeGraph  res = null;
+		long[][] edges = GraphIO.convertCSVFileFormatLong(file);
+		res = new TemporalTripletEdgeGraph(edges);
+		return res;
+	}
+	
 	public static RandomGraphJointInOutDegree getRandomGraphWSameJointIODegree(GraphOfEdgeArray graph){
 		RandomGraphJointInOutDegree g = null;
 		int[][] ioDegSeq = graph.getDegreeSeq();
@@ -275,5 +282,10 @@ public class GraphFactory {
 			edges[i][1] = map.get(edges[i][1]);
 		}
 		return nodeNames;
+	}
+	
+	public TemporalTimeStampRandomGraph getTemporalTimeStampRandomGraphFromTripletEdgesFiles(String fileName){
+		long[][] tripletEdges = GraphIO.convertCSVFileFormatLong(fileName);
+		return new TemporalTimeStampRandomGraph(tripletEdges);
 	}
 }

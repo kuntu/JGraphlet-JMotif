@@ -32,11 +32,27 @@ public class StaticGraphExperiment {
 		return res;
 	}
 	
-	public static void executeCommand(GraphOfEdgeArray graph, String[] command, String outDir, String outFile){
+	/**
+	 * 
+	 * @param graph
+	 * @param command
+	 * @param outDir	output folder
+	 * @param outFile dataName
+	 */
+	public static void executeCommand(GraphOfEdgeArray graph, String[] command, String outDir, String outFile, int fIdx){
 		//for(int i=0; i< command.length ; i++) System.out.print(command[i] + " ");
 		File folder = new File(outDir);
 		if(!folder.exists()) folder.mkdirs();
-		if(command.length >= 3&&command[1].equalsIgnoreCase("generateRandomGraph")){
+		String fType = ".txt";
+		if(fIdx>0) fType += fIdx;
+		if(command[0].equals("conversion")){	// converstion
+			if(command.length> 1 && command[1].equalsIgnoreCase("nodeList")){
+				int[][] output = new int[1][];
+				output[0] = GraphIO.edgesToNodeList(graph.edges);
+				System.out.println("\toutput:"+ outDir +"/"+outFile+"NodeList"+fType);
+				GraphIO.outputMatrix(outDir +"/"+outFile+"NodeList"+fType, output);
+			}
+		}else if(command.length >= 3&&command[1].equalsIgnoreCase("generateRandomGraph")){
 			RandomGraphModel rg = null;	
 			if(command[0].equalsIgnoreCase("MANPairModel")){
 				rg = GraphFactory.getRandomGraphW_MAN_Pair(graph);
@@ -47,15 +63,17 @@ public class StaticGraphExperiment {
 				rg = GraphFactory.getRandomGraphReciprocalAndInOutDegreeFromGraphOfEdgeArray(graph);
 			}else if(command[0].equalsIgnoreCase("joinInOutDegree")){
 				rg = GraphFactory.getRandomGraphWSameJointIODegree(graph);
+			}else if(command[0].equalsIgnoreCase("cfgModel")){
+				rg = GraphFactory.getRandomGraphLoopAndMultiEdgeWSameJointIODegree(graph);
 			}
 			int repeat = Integer.parseInt(command[2]);
 			System.out.printf("\n\t[Operation]: generate %d random graph %s \n", repeat, command[0]);
-			//GraphIO.outputMatrix(outDir+"/"+outFile+"RandomGraph_Info.txt", rg.getGraphInfo());
+			//GraphIO.outputMatrix(outDir+"/"+outFile+"RandomGraph_Info"+fType, rg.getGraphInfo());
 			int[][] outputM = null;
 			for(int i =0; i< repeat; i++){
 				outputM = rg.generateRandomGraph().edges;
-				System.out.println("\t***"+outDir+"/"+outFile+"_RandomGraph"+ i+".txt");
-				GraphIO.outputMatrix(outDir+"/"+outFile+"_"+command[0]+"_RandomGraph"+ i+".txt", outputM);
+				System.out.println("\t***"+outDir+"/"+outFile+"_RandomGraph"+ i+""+fType);
+				GraphIO.outputMatrix(outDir+"/"+outFile+"_"+command[0]+"_RandomGraph"+ i+""+fType, outputM);
 			}
 		}else if(command[0].equalsIgnoreCase("motifCensus") && command.length >1){
 			System.out.println("\n\t");
@@ -67,10 +85,10 @@ public class StaticGraphExperiment {
 				time  = System.currentTimeMillis() - time;
 				double[][] outputM = new double[1][16];
 				for(int i=0; i< 16; i++) outputM[0][i] = freq[i];
-				System.out.println("[output]: "+outDir+"/"+outFile + "TriadCencus.txt");
-				GraphIO.outputMatrix(outDir+"/"+outFile + "TriadCencus.txt", outputM);
+				System.out.println("[output]: "+outDir+"/"+outFile + "TriadCencus"+fType);
+				GraphIO.outputMatrix(outDir+"/"+outFile + "TriadCencus"+fType, outputM);
 				outputM[0] = new double[]{time};
-				GraphIO.outputMatrix(outDir+"/"+outFile + "TriadCencus_time.txt", outputM);
+				// GraphIO.outputMatrix(outDir+"/"+outFile + "TriadCencus_time"+fType, outputM);
 			}
 		}else if(command[0].equalsIgnoreCase("joinInOutDegree")){
 			
@@ -86,7 +104,7 @@ public class StaticGraphExperiment {
 				RandomGraphJointInOutDegree rgjiod = GraphFactory.getRandomGraphWSameJointIODegree(graph);
 				//output snapshot info:
 //				outputM = rgjiod.getGraphInfo();
-//				GraphIO.outputMatrix(outDir+"/"+outFile + "Info.txt", outputM);
+//				GraphIO.outputMatrix(outDir+"/"+outFile + "Info"+fType, outputM);
 				//compute 
 				outputM = new double[1][];
 				for(int i=0; i<repeat; i++){
@@ -94,9 +112,9 @@ public class StaticGraphExperiment {
 					outputM[0] = rgjiod.getMotifFreq(motifSize, opt);
 					runTimes[i] = (double) (System.currentTimeMillis() - startime);
 				}
-				GraphIO.outputMatrix(outDir+"/"+outFile + command[1] +"opt"+ opt+ ".txt", outputM);
+				GraphIO.outputMatrix(outDir+"/"+outFile + command[1] +"opt"+ opt+ ""+fType, outputM);
 				outputM[0] = runTimes;
-				GraphIO.outputMatrix(outDir +"/" + outFile + command[1] +"opt"+ opt+ "_time.txt", outputM);
+				// GraphIO.outputMatrix(outDir +"/" + outFile + command[1] +"opt"+ opt+ "_time"+fType, outputM);
 			}else if(command[1].equalsIgnoreCase("sampleGraphMotifFreq")&& command.length >= 4){
 				System.out.println("\n\t[Operation]:Simulation to generate multiple random graph and count motif frequency");
 				RandomGraphMotif rgjiod = null;
@@ -110,12 +128,12 @@ public class StaticGraphExperiment {
 				long startime = System.currentTimeMillis();
 				double[][] outputM = rgjiod.getMotifFreqFromSampledGraphs(motifSize, repeat);
 				double time = System.currentTimeMillis() - startime;
-				GraphIO.outputMatrix(outDir+"/"+outFile+"sampleGraphMotifFreq.txt", outputM);
+				GraphIO.outputMatrix(outDir+"/"+outFile+"sampleGraphMotifFreq"+fType, outputM);
 				outputM = new double[][]{{(double)repeat, time}};
-				GraphIO.outputMatrix(outDir+"/"+outFile+"sampleGraphMotifFreq_time.txt", outputM);
+				// GraphIO.outputMatrix(outDir+"/"+outFile+"sampleGraphMotifFreq_time"+fType, outputM);
 			}else if(command[1].equalsIgnoreCase("getRandomGraphInfo") ){
 				System.out.println("\n\t[Operation]:Output Graph Info");
-				String last  = "Info.txt";
+				String last  = "Info"+fType;
 				if(command.length>=3 && command[2].equalsIgnoreCase("removeNullNode")){
 					System.out.println("\n reduce network size");
 					graph = graph.removeNullNodes();
@@ -134,8 +152,8 @@ public class StaticGraphExperiment {
 					int compSize = Integer.parseInt(command[3]);
 					int[][][] tEdges = GraphPropertiesToolBox.obtainConnectComponentEdges(graph.edges, compSize);
 					for(int i = 0; i<tEdges.length; i++){
-						BufferedWriter bw = new BufferedWriter(new FileWriter(f+"/"+ outFile+"Comp"+i+".txt"));
-						System.out.println("output file: "+ f+"/"+ outFile+"Comp"+i+".txt");
+						BufferedWriter bw = new BufferedWriter(new FileWriter(f+"/"+ outFile+"Comp"+i+""+fType));
+						System.out.println("output file: "+ f+"/"+ outFile+"Comp"+i+""+fType);
 						bw.write(tEdges[i][0][0] +"\t" + tEdges[i][0][1]);
 						for(int j = 1; j< tEdges[i].length; j++){
 							bw.newLine();
@@ -147,23 +165,44 @@ public class StaticGraphExperiment {
 					e.printStackTrace();
 				}
 				
+			}else if(command[1].equalsIgnoreCase("ExpectedTriadFreq") && command.length >= 3){
+				System.out.println("\n\t[Operation]:Analogical computation random graph with joint in/out degree and count motif frequency");
+				int motifSize = Integer.parseInt(command[2]);
+				int opt = 0;
+				int repeat = Integer.parseInt(command[3]);
+				double[] runTimes = new double[repeat];
+				double[][] outputM = null;
+				long startime = 0;
+				RandomGraphJointInOutDegree rgjiod = GraphFactory.getRandomGraphWSameJointIODegree(graph);
+				outputM = new double[1][];
+				for(int i=0; i<repeat; i++){
+					startime = System.currentTimeMillis();
+					outputM[0] = rgjiod.getMotifFreq(motifSize, opt);
+					runTimes[i] = (double) (System.currentTimeMillis() - startime);
+				}
+				GraphIO.outputMatrix(outDir+"/"+outFile + command[1] +"opt"+ opt+ ""+fType, outputM);
+				outputM[0] = runTimes;
+				// GraphIO.outputMatrix(outDir +"/" + outFile + command[1] +"opt"+ opt+ "_time"+fType, outputM);
 			}
 		}else if(command[0].equalsIgnoreCase("reciprocalInOutDegree")){
 			if(command[1].equalsIgnoreCase("sampleGraphMotifFreq")&& command.length >= 4){
 				System.out.println("\n\t[Operation]:Simulation to generate multiple random graph and count motif frequency");
 				RandomGraphMotif rgriod = null;
+				boolean loop = false;
 				if(command.length>=5 && command[4].equals("allowLoopAndMultiEdges")) {
 					rgriod = GraphFactory.getRandomGraphReciprocalAndInOutDegreeFromGraphOfEdgeArray(graph);
-					outFile +="loopMultiedge";
+					loop =true;
 				}else rgriod = GraphFactory.getRandomGraphReciprocalAndInOutDegreeFromGraphOfEdgeArray(graph);
 				int repeat = Integer.parseInt(command[3]);
 				int motifSize = Integer.parseInt(command[2]);
 				long startime = System.currentTimeMillis();
 				double[][] outputM = rgriod.getMotifFreqFromSampledGraphs(motifSize, repeat);
 				double time = System.currentTimeMillis() - startime;
-				GraphIO.outputMatrix(outDir+"/"+outFile+"sampleReciprocalInOutDegreeGraphMotifFreq.txt", outputM);
+				String tmp = "sampleReciprocalInOutDegreeGraphMotifFreq";
+				if(loop) tmp += "loopMultiedges";
+				GraphIO.outputMatrix(outDir+"/"+outFile+tmp+""+fType, outputM);
 				outputM = new double[][]{{(double)repeat, time}};
-				GraphIO.outputMatrix(outDir+"/"+outFile+"sampleReciprocalInOutDegreeGraphMotifFreq_time.txt", outputM);
+				GraphIO.outputMatrix(outDir+"/"+outFile+tmp+""+fType, outputM);
 			}
 		}else if(command[0].equalsIgnoreCase("numNodeEdge")){
 			if(command[1].equalsIgnoreCase("sampleGraphMotifFreq")&& command.length >= 4){
@@ -175,9 +214,9 @@ public class StaticGraphExperiment {
 				long startime = System.currentTimeMillis();
 				double[][] outputM = rgne.getMotifFreqFromSampledGraphs(motifSize, repeat);
 				double time = System.currentTimeMillis() - startime;
-				GraphIO.outputMatrix(outDir+"/"+outFile+"sampleWNumNodeEdgeGraphMotifFreq.txt", outputM);
+				GraphIO.outputMatrix(outDir+"/"+outFile+"sampleWNumNodeEdgeGraphMotifFreq"+fType, outputM);
 				outputM = new double[][]{{(double)repeat, time}};
-				GraphIO.outputMatrix(outDir+"/"+outFile+"sampleWNumNodeEdgeGraphMotifFreq_time.txt", outputM);
+				// GraphIO.outputMatrix(outDir+"/"+outFile+"sampleWNumNodeEdgeGraphMotifFreq_time"+fType, outputM);
 			}else if(command[1].equalsIgnoreCase("ExpectedTriadFreq") && command.length >= 4){
 				System.out.println("\n\t[Operation]:Analogical computation random graph w same # nodes and # edges and count motif frequency");
 				int motifSize = Integer.parseInt(command[2]);
@@ -193,9 +232,9 @@ public class StaticGraphExperiment {
 					outputM[0] = rgne.getMotifFreq(motifSize);
 					runTimes[i] = (double) (System.currentTimeMillis() - startime);
 				}
-				GraphIO.outputMatrix(outDir+"/"+outFile + command[1] +"WNumNodeEdge"+ ".txt", outputM);
+				GraphIO.outputMatrix(outDir+"/"+outFile + command[1] +"WNumNodeEdge"+ ""+fType, outputM);
 				outputM[0] = runTimes;
-				GraphIO.outputMatrix(outDir +"/" + outFile + command[1] +"WNumNodeEdg"+ "_time.txt", outputM);
+				// GraphIO.outputMatrix(outDir +"/" + outFile + command[1] +"WNumNodeEdg"+ "_time"+fType, outputM);
 			}
 		}else if(command[0].equalsIgnoreCase("MANPairModel")){
 			if(command[1].equalsIgnoreCase("sampleGraphMotifFreq")&& command.length >= 4){
@@ -207,9 +246,9 @@ public class StaticGraphExperiment {
 				long startime = System.currentTimeMillis();
 				double[][] outputM = rgMAN.getMotifFreqFromSampledGraphs(motifSize, repeat);
 				double time = System.currentTimeMillis() - startime;
-				GraphIO.outputMatrix(outDir+"/"+outFile+"sample_MANPair_MotifFreq.txt", outputM);
+				GraphIO.outputMatrix(outDir+"/"+outFile+"sample_MANPair_MotifFreq"+fType, outputM);
 				outputM = new double[][]{{(double)repeat, time}};
-				GraphIO.outputMatrix(outDir+"/"+outFile+"sample_MANPair_MotifFreq_time.txt", outputM);
+				// GraphIO.outputMatrix(outDir+"/"+outFile+"sample_MANPair_MotifFreq_time"+fType, outputM);
 			}else if(command[1].equalsIgnoreCase("ExpectedTriadFreq") && command.length >= 4){
 				System.out.println("\n\t[Operation]:Analogical computation random graph w Specified MAN node-Pair and count motif frequency");
 				int motifSize = Integer.parseInt(command[2]);
@@ -225,12 +264,12 @@ public class StaticGraphExperiment {
 					outputM[0] = rgMAN.getMotifFreq(motifSize);
 					runTimes[i] = (double) (System.currentTimeMillis() - startime);
 				}
-				GraphIO.outputMatrix(outDir+"/"+outFile + command[1] +"WMANPair"+ ".txt", outputM);
+				GraphIO.outputMatrix(outDir+"/"+outFile + command[1] +"WMANPair"+ ""+fType, outputM);
 				outputM[0] = runTimes;
-				GraphIO.outputMatrix(outDir +"/" + outFile + command[1] +"WMANPair"+ "_time.txt", outputM);
+				// GraphIO.outputMatrix(outDir +"/" + outFile + command[1] +"WMANPair"+ "_time"+fType, outputM);
 			}else if(command[1].equalsIgnoreCase("getRandomGraphInfo")){
 				System.out.println("\n\t[Operation]:Output Graph Info");
-				String last  = "_MANPair_Info.txt";
+				String last  = "_MANPair_Info"+fType;
 				if(command.length>=3 && command[2].equalsIgnoreCase("removeNullNode")){
 					System.out.println("\n reduce network size");
 					graph = graph.removeNullNodes();
@@ -249,6 +288,10 @@ public class StaticGraphExperiment {
 		if(args.length < 2){
 			System.out.println("need two configuration files as input:\n\t1. configfile for data file paths\n\t2. experiments to execute");
 			return ;
+		}
+		int fidx = -1;
+		if(args.length>2 && args[2].equalsIgnoreCase("-i")){
+			fidx = 1;
 		}
 		String dataFileCfg = args[0];
 		String expCfg = args[1];
@@ -271,7 +314,7 @@ public class StaticGraphExperiment {
 			//graph = graph.removeNullNodes();
 			for(int j = 2; j<commands.length; j++){
 				executeCommand( graph, commands[j],outDir+"/"+expName, 
-						files[i].substring(files[i].lastIndexOf('/')+1, files[i].lastIndexOf('.')));
+						files[i].substring(files[i].lastIndexOf('/')+1, files[i].lastIndexOf('.')), (i+1) * fidx);
 			}
 		}
 	}

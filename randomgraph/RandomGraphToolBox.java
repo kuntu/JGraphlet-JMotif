@@ -9,6 +9,13 @@ import mathFunctions.*;
 import motifs.*;
 
 public class RandomGraphToolBox {
+	public static Comparator<int[]> arraycp = new Comparator<int[]>(){
+		public int compare(int[] a, int[] b){
+			if(a[0] == b[0]) return a[1] - b[1];
+			else return a[0] - b[0];
+		}
+	};
+	
 	/**
 	 * calculate triad distribution in a random network given the in/out degree and the number of edges
 	 * @param inDeg
@@ -143,7 +150,7 @@ public class RandomGraphToolBox {
 			res[i] = asymmetricEdges[i-begIdx];
 		}
 		if(reSample>0 &&!success) {
-			System.out.println("\n\t reparing...");
+			//System.out.println("\t reparing...");
 			return removeLoopAndMultiEdges(res);
 		}
 		return res;
@@ -209,12 +216,15 @@ public class RandomGraphToolBox {
 					}
 				}
 				//rewire directed
-				if(unDirEdge.length >1){
-					cand = rnd.nextInt(unDirEdge.length - 1);
-					if(cand>= idx[0]) ++cand;
+				if(dirEdge.length >1){
+					cand = rnd.nextInt(dirEdge.length - 1);
+					if(cand>= idx[1]) ++cand;
+//					if(cand>=dirEdge.length || idx[0] >=dirEdge.length || idx[1] >= dirEdge.length){
+//						System.out.println("something wrong");
+//					}
 					if(canRewire(dirEdge[idx[1]], dirEdge[cand], unDirMap, dirMap, newKeys, false)){
 						dKey = getUndirectedEdgeKey(dirEdge[cand][0], dirEdge[cand][1]);
-						rewireEdges(dirEdge[idx[0]], dirEdge[cand], unDirMap, newKeys, uKey, dKey, duplicatedKeySet);
+						rewireEdges(dirEdge[idx[1]], dirEdge[cand], dirMap, newKeys, uKey, dKey, duplicatedKeySet);
 						break;
 					}
 				}
@@ -473,15 +483,15 @@ public class RandomGraphToolBox {
 		}
 		return cnt;
 	}
-	private static long getEdgeKey(int s, int t){
+	public static long getEdgeKey(int s, int t){
 		long res = s;
 		return (res<<32) + t;
 	}
-	private static long getUndirectedEdgeKey(int s, int t){
+	public static long getUndirectedEdgeKey(int s, int t){
 		if(s> t) return getEdgeKey(t, s);
 		else return getEdgeKey(s,t );
 	}
-	private static void getEdgeFromKey(long key, int[] edge){
+	public static void getEdgeFromKey(long key, int[] edge){
 		edge[1] = (int) (key%(1L<<32));
 		edge[0] = (int) (key>>32);
 	}
@@ -811,6 +821,64 @@ public class RandomGraphToolBox {
 			}
 		}
 		repairRandomEdgeGraph(res, true, 0, 1000);
+		return res;
+	}
+	
+	/**
+	 * apply Havel-Hakimi algorithm to generate simple undirected graph:
+	 * steps:
+	 * 1. sort degree in non-decreasing order
+	 * 2. remove the node with the largest degree d_i and connect it to the next d_i nodes (with idx=i-1,...,i-d_i)
+	 * 3. each of the d_i node reduce its degree by one
+	 * @param degSeq
+	 * @return
+	 */
+	public static int[][] havelHakimiUndirect(int[] degSeq){
+		if(degSeq.length == 1) return new int[0][0];
+		int[][] edges = new int[degSeq.length][2];
+		int numEdge = 0;
+		for(int i = 0; i < degSeq.length; ++i){
+			edges[i][0] = degSeq[i];
+			edges[i][1] = i;
+			numEdge += degSeq[i];
+		}
+		Arrays.sort(edges, arraycp);
+		int[][] res = new int[numEdge][];
+		//connect the node with largest degree to the next few nodes
+		int swapIdx = 0, idx= 0, end = 0, beg = 0;
+		int[] tmp = null;
+		for(int i = 0; i<edges.length && edges[i][0]>0; ++i){
+			//connect nodes;
+			end = i + edges[i][0];
+			beg = i+1;
+			swapIdx = beg;
+			while(swapIdx < edges.length && edges[beg] == edges[swapIdx]){
+				++swapIdx;
+			}
+			--swapIdx;
+			for(int j = beg; j<=end; ++j){
+				--edges[j][0];
+				res[idx] = new int[]{edges[i][1], edges[j][1]};
+				++idx;
+			}
+			edges[i][0] = 0;
+			//swap
+			for(int j = beg; j<=end; ++j){
+				if(j<swapIdx && edges[j][0] >= edges[swapIdx][0]) continue;
+				swapIdx = Math.max(swapIdx, j);
+				if(swapIdx == j){
+					while(swapIdx<edges.length &&  edges[j][0] +1 == edges[swapIdx][0] + (swapIdx<=end?1: 0)){
+						++swapIdx;
+					}
+					--swapIdx;
+				}
+				if(swapIdx <= j) continue;
+				tmp = edges[swapIdx];
+				edges[swapIdx] = edges[j];
+				edges[j] = tmp;
+				--swapIdx;
+			}
+		}
 		return res;
 	}
 }

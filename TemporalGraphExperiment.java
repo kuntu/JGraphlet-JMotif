@@ -59,17 +59,25 @@ public class TemporalGraphExperiment {
 		String expName = commands[0][1]; // first line is experiment Name
 		String outDir = commands[1][1];	// second line is output folder
 		for(int i=0; i<files.length; i++){
+			System.out.printf("processing file[%d]: %s\n", i, files[i]);
 			tGraph = GraphFactory.getTemproalGraphWEdgeArrayFromFile(files[i]);
 			for(int j = 2; j<commands.length; j++){
-				executeCommand( tGraph, commands[j],outDir+"/"+expName, 
-						files[i].substring(files[i].lastIndexOf('/')+1, files[i].lastIndexOf('.')));
+				if(commands[j].length>1 && commands[j][0].equalsIgnoreCase("static") && commands[j][1].equals( "convertStaticFromSNAPData")){
+					File folder = new File(outDir+"/"+expName);
+					if(!folder.exists()) folder.mkdirs();
+					String sFileName = outDir+"/"+expName+"/"+ files[i].substring(files[i].lastIndexOf('/')+1, files[i].lastIndexOf('.'));
+					GraphIO.convertTemporalNetToStaticNet(files[i], sFileName+"_Static.txt");
+					break;	// only do conversion ignore the rest commands
+				}else{
+					executeCommand( tGraph, commands[j],outDir+"/"+expName, files[i].substring(files[i].lastIndexOf('/')+1, files[i].lastIndexOf('.')));
+				}
 			}
 		}
 	}
 	
 	public static void executeCommand(TemporalGraphWEdgeArray g, String[] command, String outDir, String outFile0){
 		// command[0] represent if operation if for a snapshot, command[1] is the slide number of temproal graph. command[3] is the operation
-		if(command.length >= 4&&command[0].equals("snapshot")){
+		if(command.length >= 2&&command[0].equals("snapshot")){
 			int snapshotId =Integer.parseInt(command[1]);
 			if(snapshotId>=g.time) return;
 			String outFile = null;
@@ -80,6 +88,18 @@ public class TemporalGraphExperiment {
 				low = snapshotId;
 				high = snapshotId +1;
 			}
+			if(command.length>2 && command[2].equals( "convertStatic")){
+				System.out.printf("\n\t[Operation]: convert to static network \n");
+				int[][] edges = GraphIO.getStaticEdgesFromEdgesFromSnapshots(g.edges, low, high);
+				Arrays.sort(edges, new Comparator<int[]>(){
+					public int compare(int[] a, int[] b){
+						if(a[0] == b[0]) return a[1] - b[1];
+						else return a[0] - b[0];
+					}
+				});
+				GraphIO.outputMatrix(outDir+"/"+outFile0 + "_static.txt", edges);
+				return ;
+			} 
 			for(snapshotId = low; snapshotId < high; snapshotId++){
 				GraphOfEdgeArray graph = g.getSnapshot(snapshotId);
 				graph = graph.removeNullNodes();
@@ -179,6 +199,8 @@ public class TemporalGraphExperiment {
 					
 				}
 			}
+		}else {
+			
 		}
 	}
 

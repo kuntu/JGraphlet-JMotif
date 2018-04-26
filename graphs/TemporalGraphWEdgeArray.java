@@ -2,7 +2,7 @@ package graphs;
 import motifs.*;
 
 public class TemporalGraphWEdgeArray extends TemporalNetwork implements DynamicMotif {
-	int[][][] edges;
+	public int[][][] edges;
 	int numNullSnapshot;
 	public TemporalGraphWEdgeArray(int s, int t, int[][][] e){
 		size =s;

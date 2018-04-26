@@ -42,33 +42,34 @@ public class RandomGraphJointInOutDegree implements RandomGraphModel, RandomGrap
 	}
 	
 	public double[][] getGraphInfo(){
-		double[][] res = new double[8][];
-		double[] tmp = null;
+		double[][] res = new double[1][]; // new double[8][];
+		res[0] = RandomGraphToolBox.getExpectationOfProperties(degFreq[0], degFreq[1], degFreq[2]);
+//		double[] tmp = null;
 		// number of nodes
-		res[0] = new double[]{numNode};
+//		res[0] = new double[]{numNode};
 		// number of edges
-		res[1] = new double[]{numEdge};
+//		res[1] = new double[]{numEdge};
 		// in degree sequence
-		tmp = new double[]{0.0};
+//		tmp = new double[]{0.0};
 //		tmp = new double[jointIODegreeSequence[0].length];
 //		for(int i=0; i< tmp.length; i++) tmp[i] = jointIODegreeSequence[0][i];
-		res[2] = tmp;
+//		res[2] = tmp;
 		// out degree sequence
 //		tmp = new double[jointIODegreeSequence[0].length];
 //		for(int i=0; i< tmp.length; i++) tmp[i] = jointIODegreeSequence[1][i];
-		res[3] = tmp;
+//		res[3] = tmp;
 		// expected degree properties
 		//tmp numNode, numEdge, expIn=expOut, expInSecMoment = 0,expOutSecMoment =0, expConnect = 0, expNunJointDeg
-		tmp = RandomGraphToolBox.getExpectationOfProperties(degFreq[0], degFreq[1], degFreq[2]);
-		res[4] = tmp;
-		res[5] = new double[degFreq[0].length];
-		res[6] = new double[degFreq[1].length];
-		res[7] = new double[res[6].length];
-		for(int i = 0; i<res[6].length; ++i){
-			res[5][i] = degFreq[0][i];
-			res[6][i] = degFreq[1][i];
-			res[7][i] = degFreq[2][i];
-		}
+//		tmp = RandomGraphToolBox.getExpectationOfProperties(degFreq[0], degFreq[1], degFreq[2]);
+//		res[4] = tmp;
+//		res[5] = new double[degFreq[0].length];
+//		res[6] = new double[degFreq[1].length];
+//		res[7] = new double[res[6].length];
+//		for(int i = 0; i<res[6].length; ++i){
+//			res[5][i] = degFreq[0][i];
+//			res[6][i] = degFreq[1][i];
+//			res[7][i] = degFreq[2][i];
+//		}
 		return res;
 	}
 	

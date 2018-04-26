@@ -106,6 +106,21 @@ public class MathFun {
 		}
 	}
 	
+	public static void durstenfeldShuffleMatrixMultiColumn(long[][] m, int[] colIdx, int len){
+		long[] tmp = new long[colIdx.length];
+		Random rnd = new Random();
+		if(len > m.length) len = m.length;
+		int idx = 0;
+		for(int i = 0; i< len; ++i){
+			idx = rnd.nextInt(len - i);
+			for(int j = 0; j < tmp.length; j++){
+				tmp[j] = m[i][colIdx[j]];
+				m[i][colIdx[j]] = m[idx][colIdx[j]];
+				m[idx][colIdx[j]] = tmp[j];
+			}
+		}
+	}
+	
 	/**
 	 * reservior sampling with k elements
 	 * @param totalNum

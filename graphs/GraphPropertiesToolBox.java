@@ -1,6 +1,8 @@
 package graphs;
 import java.util.*;
 
+import randomgraph.RandomGraphToolBox;
+
 public class GraphPropertiesToolBox {
 	/**
 	 * obtain in/out degree sequences from edge array, the result is represented as a 2 by N matrix m. m[0][i] is the in degree of node i, where i\in [1, N], i=0 is consider as tmpvarialbe and has no meaning
@@ -218,5 +220,22 @@ public class GraphPropertiesToolBox {
 				par[a] = b;
 			}
 		}
+	}
+	
+	public static int[][] directedEdgeToUndirect(int[][] edges){
+		int[][] res = null;
+		HashSet<Long> set = new HashSet<Long>();
+		for(int[] e: edges){
+			set.add(RandomGraphToolBox.getUndirectedEdgeKey(e[0], e[1]));
+		}
+		res = new int[set.size()][];
+		int idx = 0;
+		int[] e = null;
+		for(long l: set){
+			res[idx] = new int[2];
+			RandomGraphToolBox.getEdgeFromKey(l, res[idx]);
+			++idx;
+		}
+		return res;
 	}
 }
