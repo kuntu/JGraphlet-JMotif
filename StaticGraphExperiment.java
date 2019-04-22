@@ -88,7 +88,33 @@ public class StaticGraphExperiment {
 				System.out.println("[output]: "+outDir+"/"+outFile + "TriadCencus"+fType);
 				GraphIO.outputMatrix(outDir+"/"+outFile + "TriadCencus"+fType, outputM);
 				outputM[0] = new double[]{time};
-				// GraphIO.outputMatrix(outDir+"/"+outFile + "TriadCencus_time"+fType, outputM);
+				GraphIO.outputMatrix(outDir+"/"+outFile + "TriadCencus_time"+fType, outputM);
+			}else if(mSize==-3){
+				long[] freq = graph.getMotifFreq(mSize);
+				double[][] outputM = new double[1][freq.length];
+				for(int i=0; i< freq.length; i++) outputM[0][i] = freq[i];
+				System.out.println("[output]: "+outDir+"/"+outFile + "TriadCencus"+fType);
+				GraphIO.outputMatrix(outDir+"/"+outFile + "TriadCencus"+fType, outputM);
+			}
+		}else if(command[0].equalsIgnoreCase("motifNodeCensus") && command.length >1){
+			System.out.println("\n\t");
+			//count motif census
+			int mSize = Integer.parseInt(command[1]);
+			if(mSize == 3){
+				double time = System.currentTimeMillis() ;
+				long[][] freq = graph.getNodeMotifFreq(mSize);
+				time  = System.currentTimeMillis() - time;
+				double[][] outputM = new double[freq.length][17];
+				for(int i=0; i< outputM.length; i++) {
+					for(int j = 0; j < outputM[0].length; j++){
+						outputM[i][j] = freq[i][j];
+					}
+				}
+				System.out.println("[output]: "+outDir+"/"+outFile + "Node_TriadCencus"+fType);
+				GraphIO.outputMatrix(outDir+"/"+outFile + "Node_TriadCencus"+fType, outputM);
+				double[][] timeM = new double[1][1];
+				timeM[0][0] = time;
+				GraphIO.outputMatrix(outDir+"/"+outFile + "Node_TriadCencus_time"+fType, timeM);
 			}
 		}else if(command[0].equalsIgnoreCase("joinInOutDegree")){
 			
@@ -114,7 +140,7 @@ public class StaticGraphExperiment {
 				}
 				GraphIO.outputMatrix(outDir+"/"+outFile + command[1] +"opt"+ opt+ ""+fType, outputM);
 				outputM[0] = runTimes;
-				// GraphIO.outputMatrix(outDir +"/" + outFile + command[1] +"opt"+ opt+ "_time"+fType, outputM);
+				GraphIO.outputMatrix(outDir +"/" + outFile + command[1] +"opt"+ opt+ "_time"+fType, outputM);
 			}else if(command[1].equalsIgnoreCase("sampleGraphMotifFreq")&& command.length >= 4){
 				System.out.println("\n\t[Operation]:Simulation to generate multiple random graph and count motif frequency");
 				RandomGraphMotif rgjiod = null;
@@ -130,7 +156,7 @@ public class StaticGraphExperiment {
 				double time = System.currentTimeMillis() - startime;
 				GraphIO.outputMatrix(outDir+"/"+outFile+"sampleGraphMotifFreq"+fType, outputM);
 				outputM = new double[][]{{(double)repeat, time}};
-				// GraphIO.outputMatrix(outDir+"/"+outFile+"sampleGraphMotifFreq_time"+fType, outputM);
+				GraphIO.outputMatrix(outDir+"/"+outFile+"sampleGraphMotifFreq_time"+fType, outputM);
 			}else if(command[1].equalsIgnoreCase("getRandomGraphInfo") ){
 				System.out.println("\n\t[Operation]:Output Graph Info");
 				String last  = "Info"+fType;
@@ -182,7 +208,7 @@ public class StaticGraphExperiment {
 				}
 				GraphIO.outputMatrix(outDir+"/"+outFile + command[1] +"opt"+ opt+ ""+fType, outputM);
 				outputM[0] = runTimes;
-				// GraphIO.outputMatrix(outDir +"/" + outFile + command[1] +"opt"+ opt+ "_time"+fType, outputM);
+				GraphIO.outputMatrix(outDir +"/" + outFile + command[1] +"opt"+ opt+ "_time"+fType, outputM);
 			}
 		}else if(command[0].equalsIgnoreCase("reciprocalInOutDegree")){
 			if(command[1].equalsIgnoreCase("sampleGraphMotifFreq")&& command.length >= 4){
@@ -216,7 +242,7 @@ public class StaticGraphExperiment {
 				double time = System.currentTimeMillis() - startime;
 				GraphIO.outputMatrix(outDir+"/"+outFile+"sampleWNumNodeEdgeGraphMotifFreq"+fType, outputM);
 				outputM = new double[][]{{(double)repeat, time}};
-				// GraphIO.outputMatrix(outDir+"/"+outFile+"sampleWNumNodeEdgeGraphMotifFreq_time"+fType, outputM);
+				GraphIO.outputMatrix(outDir+"/"+outFile+"sampleWNumNodeEdgeGraphMotifFreq_time"+fType, outputM);
 			}else if(command[1].equalsIgnoreCase("ExpectedTriadFreq") && command.length >= 4){
 				System.out.println("\n\t[Operation]:Analogical computation random graph w same # nodes and # edges and count motif frequency");
 				int motifSize = Integer.parseInt(command[2]);
@@ -234,7 +260,7 @@ public class StaticGraphExperiment {
 				}
 				GraphIO.outputMatrix(outDir+"/"+outFile + command[1] +"WNumNodeEdge"+ ""+fType, outputM);
 				outputM[0] = runTimes;
-				// GraphIO.outputMatrix(outDir +"/" + outFile + command[1] +"WNumNodeEdg"+ "_time"+fType, outputM);
+				GraphIO.outputMatrix(outDir +"/" + outFile + command[1] +"WNumNodeEdg"+ "_time"+fType, outputM);
 			}
 		}else if(command[0].equalsIgnoreCase("MANPairModel")){
 			if(command[1].equalsIgnoreCase("sampleGraphMotifFreq")&& command.length >= 4){
@@ -248,7 +274,7 @@ public class StaticGraphExperiment {
 				double time = System.currentTimeMillis() - startime;
 				GraphIO.outputMatrix(outDir+"/"+outFile+"sample_MANPair_MotifFreq"+fType, outputM);
 				outputM = new double[][]{{(double)repeat, time}};
-				// GraphIO.outputMatrix(outDir+"/"+outFile+"sample_MANPair_MotifFreq_time"+fType, outputM);
+				GraphIO.outputMatrix(outDir+"/"+outFile+"sample_MANPair_MotifFreq_time"+fType, outputM);
 			}else if(command[1].equalsIgnoreCase("ExpectedTriadFreq") && command.length >= 4){
 				System.out.println("\n\t[Operation]:Analogical computation random graph w Specified MAN node-Pair and count motif frequency");
 				int motifSize = Integer.parseInt(command[2]);
@@ -266,7 +292,7 @@ public class StaticGraphExperiment {
 				}
 				GraphIO.outputMatrix(outDir+"/"+outFile + command[1] +"WMANPair"+ ""+fType, outputM);
 				outputM[0] = runTimes;
-				// GraphIO.outputMatrix(outDir +"/" + outFile + command[1] +"WMANPair"+ "_time"+fType, outputM);
+				GraphIO.outputMatrix(outDir +"/" + outFile + command[1] +"WMANPair"+ "_time"+fType, outputM);
 			}else if(command[1].equalsIgnoreCase("getRandomGraphInfo")){
 				System.out.println("\n\t[Operation]:Output Graph Info");
 				String last  = "_MANPair_Info"+fType;

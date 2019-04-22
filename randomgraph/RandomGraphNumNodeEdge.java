@@ -45,12 +45,12 @@ public class RandomGraphNumNodeEdge implements RandomGraphModel,
 			int numOfGraphs) {
 		double[][] res = null;
 		long[] freq = null;
-		if(motifSize == 3){
+		if(motifSize == 3 || motifSize==-3){
 			res = new double[numOfGraphs][];
 			for(int t = 0; t<numOfGraphs; t++){
 				GraphOfEdgeArray gea = generateRandomGraph();
 				freq = gea.getMotifFreq(motifSize);
-				res[t] = new double[16];
+				res[t] = new double[freq.length];
 				for(int i = 0; i<freq.length; i++){
 					res[t][i] = freq[i];
 				}

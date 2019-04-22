@@ -32,6 +32,13 @@ public class GraphOfEdgeArray extends BasicGraph implements GraphProperty, Motif
 		return gnpv.getMotifFreq(motifSize);
 	}
 	
+	@Override
+	public long[][] getNodeMotifFreq(int motifSize){
+		long[][] res = null;
+		GraphNodePairVal gnpv = new GraphNodePairVal(size, directed, edges);
+		return gnpv.getNodeMotifFreq(motifSize);
+	}
+	
 	public GraphOfEdgeArray removeNullNodes(){
 		HashMap<Integer, Integer> hm = new HashMap<Integer, Integer>();
 		int[][] newEdges = new int[edges.length][2];

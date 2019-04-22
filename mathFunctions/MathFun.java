@@ -137,6 +137,16 @@ public class MathFun {
 			res[idx] = idx;
 			idx++;
 		}
+		if(totalNum >= (1L<<31)){	//
+			long l = (long) idx;
+			long tmp = 0;
+			while( l < totalNum){
+				tmp = nextLong(rnd, l + 1);
+				if(tmp < k) res[(int) tmp] = l;
+				++l;
+			}
+			return res;
+		}
 		while(idx < totalNum){
 			pos = rnd.nextInt(idx+1);
 			if(pos < k){
@@ -146,7 +156,14 @@ public class MathFun {
 		}
 		return res;
 	}
-	
+	public static long nextLong(Random rng, long n){
+		long bits, val;
+		do{
+			bits = (rng.nextLong() << 1) >>> 1;
+			val = bits % n;
+		} while (bits-val+(n-1) < 0L);
+		return val;
+	}
 	/**
 	 * Sample k elements from an array with proportion to their weights
 	 * @param weight

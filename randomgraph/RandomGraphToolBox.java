@@ -743,7 +743,7 @@ public class RandomGraphToolBox {
 		long N = siz;
 		N = N*(N-1)/2;
 		if(N > ((long) Integer.MAX_VALUE)){
-			System.out.println("num of Possible edges is larger than Max Integer. user method that supporst large scale graphs");
+			System.out.println("[error] num of Possible edges is larger than Max Integer. use method that supporst large scale graphs");
 			return new int[0][0];
 		}
 		if(k > N) k = (int) N;

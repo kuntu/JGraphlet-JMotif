@@ -54,5 +54,10 @@ public class GraphAdjList extends BasicGraph implements Motif {
 		}
 		return triadFreq;
 	}
+	@Override
+	public long[][] getNodeMotifFreq(int motifSize) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }

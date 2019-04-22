@@ -103,14 +103,14 @@ public class RandomGraphJointInOutDegree implements RandomGraphModel, RandomGrap
 		double[][] res = null;
 		long[] freq = null;
 		int[][] edges = null;
-		if(motifSize == 3){
+		if(motifSize == 3|| motifSize == -3){
 			res = new double[numOfGraphs][];
 			for(int t = 0; t<numOfGraphs; t++){
 				edges = RandomGraphToolBox.generateEdgesFromInOutDegreeSeq(jointIODegreeSequence[0], jointIODegreeSequence[1], numEdge, false);
 				edges = GraphFactory.removeLoopAndMultiEdges(edges);
 				GraphOfEdgeArray gea = new GraphOfEdgeArray(edges, true, numNode);
 				freq = gea.getMotifFreq(motifSize);
-				res[t] = new double[16];
+				res[t] = new double[freq.length];
 				for(int i = 0; i<freq.length; i++){
 					res[t][i] = freq[i];
 				}

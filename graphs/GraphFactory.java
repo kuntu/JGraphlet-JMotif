@@ -198,6 +198,11 @@ public class GraphFactory {
 		return g;
 	}
 	
+	public static TemporalGraphEdgeListTimeStamp getTemporalGraphWithTimeStampFromFile(String filename){
+		long[][] timeStampedEdges = GraphIO.convertCSVFileFormatLong(filename);
+		return new TemporalGraphEdgeListTimeStamp(timeStampedEdges);
+	}
+	
 	public static TemporalTripletEdgeGraph makeTemporalTripletGraphFromFile(String file){
 		TemporalTripletEdgeGraph  res = null;
 		long[][] edges = GraphIO.convertCSVFileFormatLong(file);

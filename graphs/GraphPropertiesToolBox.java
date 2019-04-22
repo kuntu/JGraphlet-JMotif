@@ -238,4 +238,26 @@ public class GraphPropertiesToolBox {
 		}
 		return res;
 	}
+	
+	public static long edgeToKey(long s, long t){
+		return (s<<32) + t;
+	}
+	
+	public static long egeToKey(int s, int t){
+		return ((long) s) << 32 + t;
+	}
+	
+	public static long[] keyToEdgeLong(long key){
+		long[] res = new long[2];
+		res[1] = key & ((1L<<32)-1);
+		res[0] = key >> 32;
+		return res;
+	}
+	
+	public static int[] keyToEdgeInt(long key){
+		int[] res = new int[2];
+		res[1] = (int) (key & ((1L<<32) - 1));
+		res[0] = (int) (key >> 32);
+		return res;
+	}
 }

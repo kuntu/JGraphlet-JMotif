@@ -68,6 +68,16 @@ public class RandomGraphNumMANPair implements RandomGraphModel, RandomGraphMotif
 			}
 		}else if(motifSize == 4){
 			return res;
+		}else if(motifSize== -3){
+			res = new double[numOfGraphs][];
+			for(int t = 0; t<numOfGraphs; t++){
+				GraphOfEdgeArray gea = generateRandomGraph();
+				freq = gea.getMotifFreq(motifSize);
+				res[t] = new double[freq.length];
+				for(int i = 0; i<freq.length; i++){
+					res[t][i] = freq[i];
+				}
+			}
 		}
 		return res;
 	}
@@ -77,6 +87,10 @@ public class RandomGraphNumMANPair implements RandomGraphModel, RandomGraphMotif
 		Random rnd = new Random();
 		int[][] edges = new int[numMutual * 2 + numAsym][];
 		int[][] nodePairs = RandomGraphToolBox.sampleK_NodePairs(numNode, numMutual + numAsym);
+		if(nodePairs.length == 0){
+			System.out.println("no edge is generated\n");
+			return new GraphOfEdgeArray(nodePairs , true, numNode);
+		}
 		int idx = 0;
 		for(int i = 0; i<numMutual; i++){
 			edges[idx] = nodePairs[i];
