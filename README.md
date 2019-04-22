@@ -1,7 +1,8 @@
 # JMotif
 ## Introduction
 A Java program that
-1. Provides a fast algorithm to compute motif census in large scale network
+1. Provides a fast algorithm to compute **motif census** in large scale network
+2. Computes, for each node V and a triad T, the number of subgraphs that contains V and belong to triad type T. These numbers can be normalized as a distribution and serves as node attribute to indicate how likely a node belongs to a certain type of triad.
 2. Given a graph, provides a analytical model to compute average motif frequencies in random graphs (faster than simulation methods) with the same 
   * in/out-degree-pair sequence 
   * number of nodes and edges 
